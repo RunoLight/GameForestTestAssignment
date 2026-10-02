@@ -7,14 +7,9 @@ using GameForestTestAssignment.Game.GameLogic;
 
 namespace GameForestTestAssignment.Game.Bonuses;
 
-public class BonusActivation(Bonus bonus)
-{
-    public Bonus Bonus { get; } = bonus;
-}
-
 public class BonusManager
 {
-    private readonly Queue<BonusActivation> _activationQueue = new();
+    private readonly Queue<Bonus> _activationQueue = new();
     private readonly HashSet<(int Row, int Col)> _queuedOrActivated = [];
 
     public bool HasPending => _activationQueue.Count > 0;
@@ -26,7 +21,7 @@ public class BonusManager
         if (!_queuedOrActivated.Add((row, col)))
             return;
 
-        _activationQueue.Enqueue(new BonusActivation(bonus));
+        _activationQueue.Enqueue(bonus);
     }
 
     public void Flush(IBonusActivator activator)
@@ -44,9 +39,9 @@ public class BonusManager
         _queuedOrActivated.Clear();
     }
 
-    private static void ProcessBonus(BonusActivation activation, IBonusActivator activator)
+    private static void ProcessBonus(Bonus bonus, IBonusActivator activator)
     {
-        switch (activation.Bonus)
+        switch (bonus)
         {
             case LineBonus lineBonus:
                 ProcessLineBonus(lineBonus, activator);
