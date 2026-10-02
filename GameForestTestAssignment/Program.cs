@@ -1,2 +1,8 @@
-﻿using var game = new GameForestTestAssignment.Game1();
+﻿#region
+
+using GameForestTestAssignment;
+
+#endregion
+
+using var game = new MatchThreeGame();
 game.Run();
