@@ -50,7 +50,6 @@ public sealed class GameSession
         };
         _board.GenerateRandomBoard();
 
-        // Инфраструктура
         _boardRenderer = new BoardRenderer(spriteBatch);
         var animationManager = new AnimationManager();
         var matchDetector = new MatchDetector();

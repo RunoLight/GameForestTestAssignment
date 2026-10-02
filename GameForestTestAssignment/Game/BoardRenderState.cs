@@ -16,11 +16,7 @@ public class BoardRenderState
         Reset();
     }
 
-    public CellRenderState this[int x, int y]
-    {
-        get => _states[x, y];
-        set => _states[x, y] = value;
-    }
+    public CellRenderState this[int x, int y] => _states[x, y];
 
     public void Reset()
     {

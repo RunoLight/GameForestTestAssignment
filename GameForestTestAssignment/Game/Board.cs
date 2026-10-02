@@ -54,11 +54,6 @@ public class Board
 
         Grid[x2, y2].CellType = tempType;
         Grid[x2, y2].Bonus = tempBonus;
-
-        Grid[x1, y1].Row = y1;
-        Grid[x1, y1].Col = x1;
-        Grid[x2, y2].Row = y2;
-        Grid[x2, y2].Col = x2;
     }
 
     public void MoveCell(int fromX, int fromY, int toX, int toY)
@@ -70,16 +65,18 @@ public class Board
         Grid[toX, toY].Bonus = Grid[fromX, fromY].Bonus;
         Grid[fromX, fromY].CellType = CellType.None;
         Grid[fromX, fromY].Bonus = null;
-
-        Grid[toX, toY].Row = toY;
-        Grid[toX, toY].Col = toX;
-        Grid[fromX, fromY].Row = fromY;
-        Grid[fromX, fromY].Col = fromX;
     }
 
     public void ResetRenderStates()
     {
         RenderState.Reset();
+    }
+
+    public Vector2 GetCellCenter(int x, int y)
+    {
+        return BoardPosition + new Vector2(
+            x * CellSize + CellSize * 0.5f,
+            y * CellSize + CellSize * 0.5f);
     }
 
     public static bool IsInBounds(int x, int y)

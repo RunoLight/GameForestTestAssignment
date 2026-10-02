@@ -40,15 +40,8 @@ public class BombService(Board board, ParticlePool particlePool, IBonusActivator
                 bonusActivator.MarkCellForRemoval(nx, ny);
             }
 
-            particlePool.CreateBigExplosion(GetCellCenter(x, y), Color.Orange);
+            particlePool.CreateBigExplosion(board.GetCellCenter(x, y), Color.Orange);
             _pendingBombExplosions.RemoveAt(i);
         }
-    }
-
-    private Vector2 GetCellCenter(int x, int y)
-    {
-        return board.BoardPosition + new Vector2(
-            x * board.CellSize + board.CellSize * 0.5f,
-            y * board.CellSize + board.CellSize * 0.5f);
     }
 }

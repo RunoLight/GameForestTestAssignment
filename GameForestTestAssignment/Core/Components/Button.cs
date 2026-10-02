@@ -22,12 +22,10 @@ public sealed class Button
     private bool _isHovering;
 
     public string Text { get; init; } = "";
-    public Rectangle Bounds { get; private set; }
 
     public void SetPosition(int centerX, int topY, int width, int height)
     {
         _idleRect = new Rectangle(centerX - width / 2, topY, width, height);
-        Bounds = _idleRect;
     }
 
     /// <returns>True if clicked</returns>

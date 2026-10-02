@@ -41,8 +41,6 @@ public class GravityService(Board board, AnimationManager animationManager, Bonu
             {
                 board[x, fillPos].CellType = CellTypeExtensions.RandomType();
                 board[x, fillPos].Bonus = null;
-                board[x, fillPos].Row = fillPos;
-                board[x, fillPos].Col = x;
 
                 var startY = (fillPos - emptyCount) * board.CellSize;
                 var endY = fillPos * board.CellSize;

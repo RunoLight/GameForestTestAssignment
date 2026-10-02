@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using GameForestTestAssignment.Game.Animations;
 using GameForestTestAssignment.Game.Effects;
-using Microsoft.Xna.Framework;
 
 #endregion
 
@@ -65,18 +64,10 @@ public class RemovalService(
         var disappearAnim = new DisappearAnimation(280f);
         RemovalAnimationsDict[(x, y)] = disappearAnim;
         animationManager.AddAnimation(disappearAnim);
-        particlePool.CreateExplosion(GetCellCenter(x, y), board[x, y].CellType.GetColor());
+        particlePool.CreateExplosion(board.GetCellCenter(x, y), board[x, y].CellType.GetColor());
 
         var bonus = board[x, y].Bonus;
         if (bonus != null)
             bonusActivator.QueueBonus(bonus, y, x);
-    }
-
-    private Vector2 GetCellCenter(int x, int y)
-    {
-        return board.BoardPosition + new Vector2(
-            x * board.CellSize + board.CellSize * 0.5f,
-            y * board.CellSize + board.CellSize * 0.5f
-        );
     }
 }
