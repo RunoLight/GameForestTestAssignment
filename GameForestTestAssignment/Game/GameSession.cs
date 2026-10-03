@@ -79,14 +79,14 @@ public sealed class GameSession
     }
 
     public int Score => _scoreManager.Score;
-    public bool IsGameOver => _timerManager.IsExpired;
+    public bool IsGameOver => _timerManager.IsExpired && _engine.IsIdle;
 
     public void Update(GameTime gameTime)
     {
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         _timerManager.Update(deltaTime);
-        _engine.Update(deltaTime);
+        _engine.Update(deltaTime, acceptInput: !_timerManager.IsExpired);
         _particlePool.Update(deltaTime);
     }
 

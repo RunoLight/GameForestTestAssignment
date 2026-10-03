@@ -23,9 +23,11 @@ public class GameEngine
         _inputHandler.SwapRequested += OnSwapRequested;
     }
 
-    public void Update(float deltaTime)
+    public bool IsIdle => _stateMachine.State == GameState.Idle;
+
+    public void Update(float deltaTime, bool acceptInput)
     {
-        _inputHandler.Enabled = _stateMachine.CanAcceptInput;
+        _inputHandler.Enabled = acceptInput && _stateMachine.CanAcceptInput;
         _inputHandler.Update();
 
         ResolutionPlan plan = null;
