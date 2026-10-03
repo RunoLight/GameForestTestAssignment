@@ -1,19 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameForestTestAssignment.Core.ScreenSystem;
 
-public class ScreenManager(GraphicsDevice device) : IScreenNavigation
+public sealed class ScreenManager(GraphicsDevice device) : IScreenNavigation, IDisposable
 {
     // List used because collection needs iteration in Draw Update.
     private readonly List<Screen> _screenStack = [];
+    private readonly SpriteBatch _spriteBatch = new(device);
 
     public void PushScreen(Screen screen)
     {
         _screenStack.Add(screen);
 
-        screen.LoadContent(new SpriteBatch(device), device.Viewport, this);
+        screen.LoadContent(_spriteBatch, device.Viewport, this);
         screen.OnEnter();
     }
 
@@ -41,5 +43,14 @@ public class ScreenManager(GraphicsDevice device) : IScreenNavigation
     {
         foreach (var screen in _screenStack)
             screen.Draw();
+    }
+
+    public void Dispose()
+    {
+        foreach (var screen in _screenStack)
+            screen.UnloadContent();
+
+        _screenStack.Clear();
+        _spriteBatch.Dispose();
     }
 }

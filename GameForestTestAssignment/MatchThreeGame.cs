@@ -36,6 +36,7 @@ public class MatchThreeGame : Microsoft.Xna.Framework.Game
 
     protected override void UnloadContent()
     {
+        _screenManager?.Dispose();
         PersistentResources.Dispose();
     }
 

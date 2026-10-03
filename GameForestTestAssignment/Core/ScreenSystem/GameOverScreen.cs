@@ -22,13 +22,11 @@ public class GameOverScreen(int score) : Screen
     public override void LoadContent(SpriteBatch spriteBatch, Viewport viewport, IScreenNavigation screenNavigation)
     {
         base.LoadContent(spriteBatch, viewport, screenNavigation);
-        RecalculateLayout();
+        CalculateLayout();
     }
 
     public override void Update(GameTime gameTime)
     {
-        RecalculateLayout();
-
         var mouse = Mouse.GetState();
         if (_okButton.Update(mouse, _previousMouse))
             ScreenNavigation.PopToFirstScreen();
@@ -54,7 +52,7 @@ public class GameOverScreen(int score) : Screen
         SpriteBatch.End();
     }
 
-    private void RecalculateLayout()
+    private void CalculateLayout()
     {
         _okButton.SetPosition(
             Viewport.Width / 2, (int)(Viewport.Height * 0.65f),

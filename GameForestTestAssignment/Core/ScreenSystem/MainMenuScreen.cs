@@ -16,10 +16,15 @@ public class MainMenuScreen : Screen
     private MouseState _previousMouse;
     private float _titlePulse;
 
+    public override void LoadContent(SpriteBatch spriteBatch, Viewport viewport, IScreenNavigation screenNavigation)
+    {
+        base.LoadContent(spriteBatch, viewport, screenNavigation);
+        CalculateLayout();
+    }
+
     public override void OnEnter()
     {
         _previousMouse = Mouse.GetState();
-        RecalculateLayout();
     }
 
     public override void Update(GameTime gameTime)
@@ -46,7 +51,7 @@ public class MainMenuScreen : Screen
         SpriteBatch.End();
     }
 
-    private void RecalculateLayout()
+    private void CalculateLayout()
     {
         _playButton.SetPosition(
             Viewport.Width / 2, (int)(Viewport.Height / 2f + 50),
