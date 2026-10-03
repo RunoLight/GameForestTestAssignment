@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using GameForestTestAssignment.Game.Bonuses;
 using GameForestTestAssignment.Game.MatchDetection;
 
@@ -61,12 +63,13 @@ public class Board : IBoard
 
     public void Shuffle()
     {
+        var contents = new List<(CellType Type, Bonus Bonus)>(Width * Height);
+        foreach (var cell in _cells)
+            contents.Add((cell.CellType, cell.Bonus));
+
         for (var attempt = 0; attempt < MaxShuffleAttempts; attempt++)
-        {
-            PermuteCells();
-            if (!MoveFinder.HasAnyMatch(this) && MoveFinder.HasPossibleMove(this))
+            if (TryPlaceWithoutMatches(contents) && MoveFinder.HasPossibleMove(this))
                 return;
-        }
 
         GenerateRandomBoard();
     }
@@ -79,18 +82,24 @@ public class Board : IBoard
         } while (!MoveFinder.HasPossibleMove(this));
     }
 
-    private void PermuteCells()
+    private bool TryPlaceWithoutMatches(List<(CellType Type, Bonus Bonus)> contents)
     {
-        var contents = new (CellType Type, Bonus Bonus)[Width * Height];
-        var i = 0;
-        foreach (var cell in _cells)
-            contents[i++] = (cell.CellType, cell.Bonus);
+        var remaining = new List<(CellType Type, Bonus Bonus)>(contents);
+        Random.Shared.Shuffle(CollectionsMarshal.AsSpan(remaining));
 
-        Random.Shared.Shuffle(contents);
+        Clear();
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            var index = remaining.FindIndex(piece => !WouldCreateMatch(x, y, piece.Type));
+            if (index < 0)
+                return false;
 
-        i = 0;
-        foreach (var cell in _cells)
-            (cell.CellType, cell.Bonus) = contents[i++];
+            (_cells[x, y].CellType, _cells[x, y].Bonus) = remaining[index];
+            remaining.RemoveAt(index);
+        }
+
+        return true;
     }
 
     private void FillWithoutMatches()
