@@ -69,7 +69,6 @@ public sealed class GameSession
         var matchDetector = new MatchDetector();
         _scoreManager = new ScoreManager();
         _timerManager = new TimerManager(RoundDurationSeconds);
-        var bonusManager = new BonusManager();
         _particlePool = new ParticlePool();
         var inputHandler = new InputHandler(cellSize, boardPosition);
 
@@ -80,7 +79,6 @@ public sealed class GameSession
             matchDetector,
             _scoreManager,
             _timerManager,
-            bonusManager,
             _particlePool,
             inputHandler
         );

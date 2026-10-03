@@ -3,76 +3,50 @@ using GameForestTestAssignment.Game.GameLogic;
 
 namespace GameForestTestAssignment.Game.Bonuses;
 
-public class BonusManager
+public class BonusManager(BoardEffectQueue effects)
 {
-    private readonly Queue<Bonus> _activationQueue = new();
-    private readonly HashSet<(int Row, int Col)> _queuedOrActivated = [];
+    private readonly HashSet<(int X, int Y)> _activated = [];
 
-    private IBonusActivator _activator;
-
-    public bool HasPending => _activationQueue.Count > 0;
-
-    public void SetActivator(IBonusActivator activationContext)
+    public void Activate(Bonus bonus, int x, int y)
     {
-        _activator = activationContext;
-    }
-
-    public void QueueBonus(Bonus bonus, int row, int col)
-    {
-        bonus.Row = row;
-        bonus.Col = col;
-        if (!_queuedOrActivated.Add((row, col)))
+        if (!_activated.Add((x, y)))
             return;
 
-        _activationQueue.Enqueue(bonus);
-    }
-
-    public void Flush()
-    {
-        while (_activationQueue.Count > 0)
+        switch (bonus)
         {
-            var activation = _activationQueue.Dequeue();
-            ProcessBonus(activation, _activator);
+            case LineBonus lineBonus:
+                ActivateLineBonus(lineBonus, x, y);
+                break;
+            case BombBonus:
+                ActivateBombBonus(x, y);
+                break;
         }
     }
 
     public void Clear()
     {
-        _activationQueue.Clear();
-        _queuedOrActivated.Clear();
+        _activated.Clear();
     }
 
-    private static void ProcessBonus(Bonus bonus, IBonusActivator activator)
+    private void ActivateLineBonus(LineBonus lineBonus, int x, int y)
     {
-        switch (bonus)
-        {
-            case LineBonus lineBonus:
-                ProcessLineBonus(lineBonus, activator);
-                break;
-            case BombBonus bombBonus:
-                ProcessBombBonus(bombBonus, activator);
-                break;
-        }
-    }
-
-    private static void ProcessLineBonus(LineBonus lineBonus, IBonusActivator activator)
-    {
-        activator.MarkCellForRemoval(lineBonus.Col, lineBonus.Row);
+        effects.Enqueue(new RemoveCellEffect(x, y));
 
         if (lineBonus.Orientation == BonusOrientation.Horizontal)
         {
-            activator.SpawnDestroyer(lineBonus.Col, lineBonus.Row, -1, 0, lineBonus.ColorType);
-            activator.SpawnDestroyer(lineBonus.Col, lineBonus.Row, 1, 0, lineBonus.ColorType);
+            effects.Enqueue(new SpawnDestroyerEffect(x, y, -1, 0, lineBonus.ColorType));
+            effects.Enqueue(new SpawnDestroyerEffect(x, y, 1, 0, lineBonus.ColorType));
         }
         else
         {
-            activator.SpawnDestroyer(lineBonus.Col, lineBonus.Row, 0, -1, lineBonus.ColorType);
-            activator.SpawnDestroyer(lineBonus.Col, lineBonus.Row, 0, 1, lineBonus.ColorType);
+            effects.Enqueue(new SpawnDestroyerEffect(x, y, 0, -1, lineBonus.ColorType));
+            effects.Enqueue(new SpawnDestroyerEffect(x, y, 0, 1, lineBonus.ColorType));
         }
     }
 
-    private static void ProcessBombBonus(BombBonus bombBonus, IBonusActivator activator)
+    private void ActivateBombBonus(int x, int y)
     {
-        activator.ScheduleBombExplosion(bombBonus.Col, bombBonus.Row);
+        effects.Enqueue(new RemoveCellEffect(x, y));
+        effects.Enqueue(new ScheduleBombExplosionEffect(x, y));
     }
 }

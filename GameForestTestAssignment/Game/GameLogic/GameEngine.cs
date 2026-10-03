@@ -15,6 +15,7 @@ public class GameEngine
     private readonly BombService _bombService;
     private readonly BonusManager _bonusManager;
     private readonly DestroyerService _destroyerService;
+    private readonly BoardEffectQueue _effects = new();
     private readonly GravityService _gravityService;
     private readonly InputHandler _inputHandler;
     private readonly ParticlePool _particlePool;
@@ -26,30 +27,23 @@ public class GameEngine
 
     public GameEngine(Board board, BoardRenderer boardRenderer, AnimationManager animationManager,
         MatchDetector matchDetector, ScoreManager scoreManager, TimerManager timerManager,
-        BonusManager bonusManager, ParticlePool particlePool, InputHandler inputHandler)
+        ParticlePool particlePool, InputHandler inputHandler)
     {
         _board = board;
         _animationManager = animationManager;
         _timerManager = timerManager;
         _particlePool = particlePool;
         _inputHandler = inputHandler;
-        _bonusManager = bonusManager;
 
         _stateMachine = new GameStateMachine(board, matchDetector, animationManager);
 
-        var activationContext = new BonusActivationContext();
-
-        _removalService = new RemovalService(board, animationManager, scoreManager, particlePool, activationContext);
-        _bombService = new BombService(board, particlePool, activationContext);
-        _destroyerService = new DestroyerService(board, activationContext);
-
-        _bonusManager.SetActivator(activationContext);
-
-        activationContext.Initialize(_removalService, _bombService, _destroyerService, _bonusManager);
-
+        _bonusManager = new BonusManager(_effects);
+        _removalService = new RemovalService(board, animationManager, scoreManager, particlePool, _effects);
+        _bombService = new BombService(board, particlePool, _effects);
+        _destroyerService = new DestroyerService(board, _effects);
 
         _renderStateApplier = new RenderStateApplier(board, boardRenderer);
-        _gravityService = new GravityService(board, animationManager, bonusManager);
+        _gravityService = new GravityService(board, animationManager, _bonusManager);
 
         _inputHandler.SwapRequested += OnSwapRequested;
         _inputHandler.CellSelected += OnCellSelected;
@@ -93,7 +87,7 @@ public class GameEngine
         _renderStateApplier.UpdateHighlight(deltaTime);
         _destroyerService.Update(deltaTime);
         _bombService.ProcessPendingBombExplosions(deltaTime);
-        _bonusManager.Flush();
+        ProcessEffects();
 
         _particlePool.Update(deltaTime);
         _animationManager.Update(deltaTime);
@@ -135,23 +129,43 @@ public class GameEngine
         _bonusManager.Clear();
 
         foreach (var (pos, bonus) in plan.BonusesToSpawn)
-        {
             _board[pos.X, pos.Y].Bonus = bonus;
-            bonus.Col = pos.X;
-            bonus.Row = pos.Y;
-        }
 
         foreach (var cell in plan.CellsToRemove)
-            _removalService.MarkCellForRemoval(cell.X, cell.Y);
+            _effects.Enqueue(new RemoveCellEffect(cell.X, cell.Y));
 
         foreach (var (x, y) in plan.BonusesToActivate)
         {
             var bonus = _board[x, y].Bonus;
             if (bonus != null)
-                _bonusManager.QueueBonus(bonus, y, x);
+                _effects.Enqueue(new ActivateBonusEffect(x, y, bonus));
         }
 
-        _bonusManager.Flush();
+        ProcessEffects();
+    }
+
+    private void ProcessEffects()
+    {
+        while (_effects.TryDequeue(out var effect))
+        {
+            switch (effect)
+            {
+                case RemoveCellEffect e:
+                    _removalService.MarkCellForRemoval(e.X, e.Y);
+                    break;
+                case ActivateBonusEffect e:
+                    _bonusManager.Activate(e.Bonus, e.X, e.Y);
+                    break;
+                case SpawnDestroyerEffect e:
+                    _destroyerService.SpawnDestroyer(e.X, e.Y, e.Dx, e.Dy, e.ColorType);
+                    break;
+                case ScheduleBombExplosionEffect e:
+                    _bombService.ScheduleBombExplosion(e.X, e.Y);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(effect), effect, null);
+            }
+        }
     }
 
     private void UpdateResolving()
@@ -164,7 +178,7 @@ public class GameEngine
 
         if (animsDone && _destroyerService.DestroyerCount == 0 &&
             _bombService.PendingBombCount == 0 &&
-            !_bonusManager.HasPending)
+            _effects.IsEmpty)
         {
             _removalService.ClearCells();
             _removalService.Clear();

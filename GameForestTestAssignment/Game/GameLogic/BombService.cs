@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class BombService(IBoard board, ParticlePool particlePool, IBonusActivator bonusActivator)
+public class BombService(IBoard board, ParticlePool particlePool, BoardEffectQueue effects)
 {
     private readonly List<(int X, int Y, float Delay)> _pendingBombExplosions = [];
 
@@ -12,7 +12,6 @@ public class BombService(IBoard board, ParticlePool particlePool, IBonusActivato
 
     public void ScheduleBombExplosion(int x, int y)
     {
-        bonusActivator.MarkCellForRemoval(x, y);
         _pendingBombExplosions.Add((x, y, 250f));
     }
 
@@ -30,11 +29,7 @@ public class BombService(IBoard board, ParticlePool particlePool, IBonusActivato
 
             for (var dx = -1; dx <= 1; dx++)
             for (var dy = -1; dy <= 1; dy++)
-            {
-                var nx = x + dx;
-                var ny = y + dy;
-                bonusActivator.MarkCellForRemoval(nx, ny);
-            }
+                effects.Enqueue(new RemoveCellEffect(x + dx, y + dy));
 
             particlePool.CreateBigExplosion(board.GetCellCenter(x, y), Color.Orange);
             _pendingBombExplosions.RemoveAt(i);

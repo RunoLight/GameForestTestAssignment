@@ -9,7 +9,7 @@ public class RemovalService(
     AnimationManager animationManager,
     ScoreManager scoreManager,
     ParticlePool particlePool,
-    IBonusActivator bonusActivator
+    BoardEffectQueue effects
 )
 {
     private readonly HashSet<(int X, int Y)> _cellsToRemove = [];
@@ -64,6 +64,6 @@ public class RemovalService(
 
         var bonus = board[x, y].Bonus;
         if (bonus != null)
-            bonusActivator.QueueBonus(bonus, y, x);
+            effects.Enqueue(new ActivateBonusEffect(x, y, bonus));
     }
 }

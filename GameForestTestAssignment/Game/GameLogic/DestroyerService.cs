@@ -3,7 +3,7 @@ using GameForestTestAssignment.Game.Effects;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class DestroyerService(IBoard board, IBonusActivator bonusActivator)
+public class DestroyerService(IBoard board, BoardEffectQueue effects)
 {
     private readonly List<Destroyer> _destroyers = [];
 
@@ -20,10 +20,15 @@ public class DestroyerService(IBoard board, IBonusActivator bonusActivator)
         for (var i = _destroyers.Count - 1; i >= 0; i--)
         {
             var destroyer = _destroyers[i];
-            destroyer.Update(deltaTime, board, bonusActivator.MarkCellForRemoval);
+            destroyer.Update(deltaTime, board, OnCellHit);
 
             if (!destroyer.IsAlive)
                 _destroyers.RemoveAt(i);
         }
+    }
+
+    private void OnCellHit(int x, int y)
+    {
+        effects.Enqueue(new RemoveCellEffect(x, y));
     }
 }
