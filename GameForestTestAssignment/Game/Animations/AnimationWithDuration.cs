@@ -2,16 +2,18 @@ using System;
 
 namespace GameForestTestAssignment.Game.Animations;
 
-public class AnimationWithDuration(float durationMs) : IAnimation
+public abstract class AnimationWithDuration(float durationMs) : IAnimation
 {
     private float _elapsed;
 
-    public float Progress { get; private set; }
+    protected float Progress { get; private set; }
     public bool IsComplete => _elapsed >= durationMs;
 
-    public virtual void Update(float deltaTime)
+    public void Update(float deltaTime)
     {
         _elapsed = Math.Min(_elapsed + deltaTime, durationMs);
         Progress = _elapsed / durationMs;
     }
+
+    public abstract void Apply(BoardRenderState renderState);
 }

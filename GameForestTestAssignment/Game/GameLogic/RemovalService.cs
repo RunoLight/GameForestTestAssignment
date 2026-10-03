@@ -14,9 +14,6 @@ public class RemovalService(
 {
     private readonly HashSet<(int X, int Y)> _cellsToRemove = [];
 
-    public IEnumerable<DisappearAnimation> RemovalAnimations => RemovalAnimationsDict.Values;
-    public Dictionary<(int X, int Y), DisappearAnimation> RemovalAnimationsDict { get; } = new();
-
     public void MarkCellForRemoval(int x, int y)
     {
         TryMarkForRemoval(x, y, true);
@@ -25,22 +22,6 @@ public class RemovalService(
     public void Clear()
     {
         _cellsToRemove.Clear();
-        RemovalAnimationsDict.Clear();
-    }
-
-    public void ClearCells()
-    {
-        foreach (var cell in _cellsToRemove)
-        {
-            if (!board.IsInBounds(cell.X, cell.Y))
-                continue;
-
-            board[cell.X, cell.Y].CellType = CellType.None;
-            board[cell.X, cell.Y].Bonus = null;
-        }
-
-        _cellsToRemove.Clear();
-        RemovalAnimationsDict.Clear();
     }
 
     private void TryMarkForRemoval(int x, int y, bool awardScore)
@@ -57,13 +38,17 @@ public class RemovalService(
         if (awardScore)
             scoreManager.AddScore(1);
 
-        var disappearAnim = new DisappearAnimation(280f);
-        RemovalAnimationsDict[(x, y)] = disappearAnim;
-        animationManager.AddAnimation(disappearAnim);
+        animationManager.Play(new DisappearAnimation(x, y, 280f), () => ClearCell(x, y));
         particlePool.CreateExplosion(board.GetCellCenter(x, y), board[x, y].CellType.GetColor());
 
         var bonus = board[x, y].Bonus;
         if (bonus != null)
             effects.Enqueue(new ActivateBonusEffect(x, y, bonus));
+    }
+
+    private void ClearCell(int x, int y)
+    {
+        board[x, y].CellType = CellType.None;
+        board[x, y].Bonus = null;
     }
 }

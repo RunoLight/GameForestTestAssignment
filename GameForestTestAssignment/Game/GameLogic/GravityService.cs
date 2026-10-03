@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using GameForestTestAssignment.Game.Animations;
 using GameForestTestAssignment.Game.Bonuses;
 
@@ -7,9 +6,8 @@ namespace GameForestTestAssignment.Game.GameLogic;
 
 public class GravityService(IBoard board, AnimationManager animationManager, BonusManager bonusManager)
 {
-    public void Apply(Dictionary<(int X, int Y), FallAnimation> fallAnimations)
+    public void Apply()
     {
-        fallAnimations.Clear();
         bonusManager.Clear();
 
         for (var x = 0; x < Board.Width; x++)
@@ -24,9 +22,8 @@ public class GravityService(IBoard board, AnimationManager animationManager, Bon
                 {
                     board.MoveCell(x, readPos, x, writePos);
                     var duration = Math.Max(120f, Math.Abs(writePos - readPos) * 90f);
-                    var anim = new FallAnimation(readPos * board.CellSize, writePos * board.CellSize, duration);
-                    fallAnimations[(x, writePos)] = anim;
-                    animationManager.AddAnimation(anim);
+                    var startOffsetY = (readPos - writePos) * board.CellSize;
+                    animationManager.Play(new FallAnimation(x, writePos, startOffsetY, duration));
                 }
 
                 writePos--;
@@ -38,12 +35,9 @@ public class GravityService(IBoard board, AnimationManager animationManager, Bon
                 board[x, fillPos].CellType = CellTypeExtensions.RandomType();
                 board[x, fillPos].Bonus = null;
 
-                var startY = (fillPos - emptyCount) * board.CellSize;
-                var endY = fillPos * board.CellSize;
                 var duration = Math.Max(160f, emptyCount * 90f);
-                var anim = new FallAnimation(startY, endY, duration);
-                fallAnimations[(x, fillPos)] = anim;
-                animationManager.AddAnimation(anim);
+                var startOffsetY = -emptyCount * board.CellSize;
+                animationManager.Play(new FallAnimation(x, fillPos, startOffsetY, duration));
             }
         }
     }

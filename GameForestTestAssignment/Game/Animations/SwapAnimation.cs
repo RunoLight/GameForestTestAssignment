@@ -1,22 +1,13 @@
-using System;
 using GameForestTestAssignment.Utils;
 using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game.Animations;
 
-public class SwapAnimation(Vector2 startPos, Vector2 endPos, float durationMs, Action<float> onComplete = null)
-    : AnimationWithDuration(durationMs)
+public class SwapAnimation(int x, int y, Vector2 startOffset, float durationMs) : AnimationWithDuration(durationMs)
 {
-    public override void Update(float deltaTime)
-    {
-        base.Update(deltaTime);
-        if (IsComplete)
-            onComplete?.Invoke(Progress);
-    }
-
-    public Vector2 GetCurrentPosition()
+    public override void Apply(BoardRenderState renderState)
     {
         var t = Easing.EaseOutQuad(Progress);
-        return Vector2.Lerp(startPos, endPos, t);
+        renderState.SetOffset(x, y, Vector2.Lerp(startOffset, Vector2.Zero, t));
     }
 }

@@ -1,20 +1,13 @@
-using System;
 using GameForestTestAssignment.Utils;
+using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game.Animations;
 
-public class FallAnimation(float startY, float endY, float durationMs, Action<float> onComplete = null)
-    : AnimationWithDuration(durationMs)
+public class FallAnimation(int x, int y, float startOffsetY, float durationMs) : AnimationWithDuration(durationMs)
 {
-    public override void Update(float deltaTime)
-    {
-        base.Update(deltaTime);
-        if (IsComplete) onComplete?.Invoke(Progress);
-    }
-
-    public float GetCurrentY()
+    public override void Apply(BoardRenderState renderState)
     {
         var t = Easing.EaseOutCubic(Progress);
-        return startY + (endY - startY) * t;
+        renderState.SetOffset(x, y, new Vector2(0f, startOffsetY * (1f - t)));
     }
 }

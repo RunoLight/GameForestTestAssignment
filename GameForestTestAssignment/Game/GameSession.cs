@@ -39,48 +39,47 @@ public sealed class GameSession
 
     private readonly Board _board;
     private readonly BoardRenderer _boardRenderer;
+    private readonly DestroyerService _destroyerService;
     private readonly GameEngine _engine;
     private readonly ParticlePool _particlePool;
+    private readonly RenderStateApplier _renderStateApplier;
     private readonly ScoreManager _scoreManager;
     private readonly TimerManager _timerManager;
 
     public GameSession(SpriteBatch spriteBatch, Viewport viewport)
     {
-        var availableWidth = viewport.Width - BoardMarginX;
-        var availableHeight = viewport.Height - BoardMarginY;
-
-        var cellSize = Math.Min(availableWidth / Board.Width, availableHeight / Board.Height);
-        cellSize = Math.Clamp(cellSize, MinCellSize, MaxCellSize);
-
-        var boardPosition = new Vector2(
-            (viewport.Width - cellSize * Board.Width) / 2f,
-            BoardTopOffset + (availableHeight - cellSize * Board.Height) / 2f
-        );
-
-        _board = new Board
-        {
-            CellSize = cellSize,
-            BoardPosition = boardPosition
-        };
+        _board = CreateBoard(viewport);
         _board.GenerateRandomBoard();
 
         _boardRenderer = new BoardRenderer(spriteBatch);
-        var animationManager = new AnimationManager();
-        var matchDetector = new MatchDetector();
         _scoreManager = new ScoreManager();
         _timerManager = new TimerManager(RoundDurationSeconds);
         _particlePool = new ParticlePool();
-        var inputHandler = new InputHandler(cellSize, boardPosition);
+
+        var animationManager = new AnimationManager();
+        var effects = new BoardEffectQueue();
+        var bonusManager = new BonusManager(effects);
+        var removalService = new RemovalService(_board, animationManager, _scoreManager, _particlePool, effects);
+        var bombService = new BombService(_board, _particlePool, effects);
+        _destroyerService = new DestroyerService(_board, effects);
+        var gravityService = new GravityService(_board, animationManager, bonusManager);
+        var stateMachine = new GameStateMachine(_board, new MatchDetector(), animationManager, gravityService);
+        _renderStateApplier = new RenderStateApplier(_board, _boardRenderer, animationManager);
+
+        var inputHandler = new InputHandler(_board.CellSize, _board.BoardPosition);
+        inputHandler.CellSelected += _renderStateApplier.SelectCell;
+        inputHandler.SelectionCleared += _renderStateApplier.ClearSelection;
 
         _engine = new GameEngine(
             _board,
-            _boardRenderer,
+            stateMachine,
+            inputHandler,
             animationManager,
-            matchDetector,
-            _scoreManager,
-            _timerManager,
-            _particlePool,
-            inputHandler
+            effects,
+            bonusManager,
+            removalService,
+            bombService,
+            _destroyerService
         );
     }
 
@@ -89,14 +88,18 @@ public sealed class GameSession
 
     public void Update(GameTime gameTime)
     {
-        _engine.Update(gameTime);
+        var deltaTimeMs = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+        _timerManager.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+        _engine.Update(deltaTimeMs);
+        _particlePool.Update(deltaTimeMs);
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        _engine.ApplyRenderState();
+        _renderStateApplier.ApplyRenderState();
         _boardRenderer.DrawBoard(_board);
-        _engine.DrawEffects();
+        _renderStateApplier.DrawEffects(_destroyerService.Destroyers);
         _particlePool.Draw(spriteBatch);
     }
 
@@ -113,6 +116,26 @@ public sealed class GameSession
             PersistentResources.WhitePixel,
             new Rectangle(0, 0, viewport.Width, viewport.Height),
             BackgroundColor);
+    }
+
+    private static Board CreateBoard(Viewport viewport)
+    {
+        var availableWidth = viewport.Width - BoardMarginX;
+        var availableHeight = viewport.Height - BoardMarginY;
+
+        var cellSize = Math.Min(availableWidth / Board.Width, availableHeight / Board.Height);
+        cellSize = Math.Clamp(cellSize, MinCellSize, MaxCellSize);
+
+        var boardPosition = new Vector2(
+            (viewport.Width - cellSize * Board.Width) / 2f,
+            BoardTopOffset + (availableHeight - cellSize * Board.Height) / 2f
+        );
+
+        return new Board
+        {
+            CellSize = cellSize,
+            BoardPosition = boardPosition
+        };
     }
 
     private void DrawScore(SpriteBatch spriteBatch, SpriteFont font)

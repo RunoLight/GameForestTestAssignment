@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using GameForestTestAssignment.Game.Animations;
 using GameForestTestAssignment.Game.MatchDetection;
 using GameForestTestAssignment.Game.PlayerInput;
@@ -18,16 +17,14 @@ public enum GameState
 public class GameStateMachine(
     Board board,
     MatchDetector matchDetector,
-    AnimationManager animationManager
+    AnimationManager animationManager,
+    GravityService gravityService
 )
 {
     private SwapCommand? _currentSwap;
 
     public GameState State { get; private set; } = GameState.Idle;
     public bool CanAcceptInput => State == GameState.Idle;
-
-    public Dictionary<(int X, int Y), SwapAnimation> SwapAnimationsDict { get; } = new();
-    public Dictionary<(int X, int Y), FallAnimation> FallAnimationsDict { get; } = new();
 
     public void RequestSwap(SwapCommand command)
     {
@@ -44,15 +41,8 @@ public class GameStateMachine(
         if (State is not (GameState.Swapping or GameState.SwapBack))
             return (false, null);
 
-        var allDone = true;
-        foreach (var anim in SwapAnimationsDict.Values)
-            if (!anim.IsComplete)
-                allDone = false;
-
-        if (!allDone)
+        if (animationManager.IsPlaying<SwapAnimation>())
             return (false, null);
-
-        SwapAnimationsDict.Clear();
 
         if (State == GameState.SwapBack)
         {
@@ -81,9 +71,9 @@ public class GameStateMachine(
         return (true, plan);
     }
 
-    public void ApplyGravity(GravityService gravityService)
+    public void ApplyGravity()
     {
-        gravityService.Apply(FallAnimationsDict);
+        gravityService.Apply();
         State = GameState.Falling;
         _currentSwap = null;
     }
@@ -94,14 +84,9 @@ public class GameStateMachine(
         if (State != GameState.Falling)
             return (false, null);
 
-        var allDone = true;
-        foreach (var anim in FallAnimationsDict.Values)
-            if (!anim.IsComplete)
-                allDone = false;
+        if (animationManager.IsPlaying<FallAnimation>())
+            return (false, null);
 
-        if (!allDone) return (false, null);
-
-        FallAnimationsDict.Clear();
         var plan = MatchResolver.Build(board, matchDetector, null);
         if (plan.IsEmpty)
         {
@@ -117,25 +102,11 @@ public class GameStateMachine(
     {
         board.SwapCells(command.StartX, command.StartY, command.EndX, command.EndY);
 
-        var startScreen = GetCellScreenPos(command.StartX, command.StartY);
-        var endScreen = GetCellScreenPos(command.EndX, command.EndY);
-
         const float animDuration = 220f;
-        var animAtStart = new SwapAnimation(endScreen, startScreen, animDuration);
-        var animAtEnd = new SwapAnimation(startScreen, endScreen, animDuration);
-
-        animationManager.AddAnimation(animAtStart);
-        animationManager.AddAnimation(animAtEnd);
-
-        SwapAnimationsDict.Clear();
-        SwapAnimationsDict.Add((command.StartX, command.StartY), animAtStart);
-        SwapAnimationsDict.Add((command.EndX, command.EndY), animAtEnd);
+        var offset = new Vector2(command.EndX - command.StartX, command.EndY - command.StartY) * board.CellSize;
+        animationManager.Play(new SwapAnimation(command.StartX, command.StartY, offset, animDuration));
+        animationManager.Play(new SwapAnimation(command.EndX, command.EndY, -offset, animDuration));
 
         State = swapBack ? GameState.SwapBack : GameState.Swapping;
-    }
-
-    private Vector2 GetCellScreenPos(int x, int y)
-    {
-        return board.BoardPosition + new Vector2(x * board.CellSize, y * board.CellSize);
     }
 }

@@ -1,16 +1,13 @@
+using System;
 using GameForestTestAssignment.Utils;
 
 namespace GameForestTestAssignment.Game.Animations;
 
-public class DisappearAnimation(float durationMs) : AnimationWithDuration(durationMs)
+public class DisappearAnimation(int x, int y, float durationMs) : AnimationWithDuration(durationMs)
 {
-    public float GetScale()
+    public override void Apply(BoardRenderState renderState)
     {
-        return 1f - Easing.EaseInCubic(Progress);
-    }
-
-    public float GetAlpha()
-    {
-        return 1f - Easing.Linear(Progress);
+        renderState.SetScale(x, y, Math.Max(0.01f, 1f - Easing.EaseInCubic(Progress)));
+        renderState.SetAlpha(x, y, 1f - Easing.Linear(Progress));
     }
 }

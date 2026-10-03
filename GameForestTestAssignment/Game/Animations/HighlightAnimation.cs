@@ -2,7 +2,7 @@ using System;
 
 namespace GameForestTestAssignment.Game.Animations;
 
-public class HighlightAnimation : IAnimation
+public class HighlightAnimation(int x, int y) : IAnimation
 {
     private float _elapsed;
 
@@ -13,13 +13,9 @@ public class HighlightAnimation : IAnimation
         _elapsed += deltaTime;
     }
 
-    public float GetRotation()
+    public void Apply(BoardRenderState renderState)
     {
-        return (float)Math.Sin(_elapsed * 0.003f) * 0.3f;
-    }
-
-    public float GetScalePulse()
-    {
-        return 1f + (float)Math.Sin(_elapsed * 0.005f) * 0.08f;
+        renderState.SetRotation(x, y, (float)Math.Sin(_elapsed * 0.003f) * 0.3f);
+        renderState.SetScale(x, y, 1f + (float)Math.Sin(_elapsed * 0.005f) * 0.08f);
     }
 }
