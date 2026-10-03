@@ -57,7 +57,7 @@ public sealed class GameSession
         _timerManager = new TimerManager(RoundDurationSeconds);
         var bonusManager = new BonusManager();
         _particlePool = new ParticlePool();
-        var inputHandler = new InputHandler(_board, cellSize, boardPosition);
+        var inputHandler = new InputHandler(cellSize, boardPosition);
 
         _engine = new GameEngine(
             _board,

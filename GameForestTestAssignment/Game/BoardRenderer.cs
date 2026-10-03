@@ -13,6 +13,9 @@ namespace GameForestTestAssignment.Game;
 
 public class BoardRenderer
 {
+    private static readonly Color BackgroundColor1 = new(60, 60, 80);
+    private static readonly Color BackgroundColor2 = new(50, 50, 70);
+
     private readonly Dictionary<CellType, Texture2D> _shapeTextures;
     private readonly SpriteBatch _spriteBatch;
     private readonly int _textureSize;
@@ -88,13 +91,13 @@ public class BoardRenderer
         return texture;
     }
 
-    private void DrawBoardBackground(Board board)
+    private void DrawBoardBackground(IBoard board)
     {
         for (var x = 0; x < Board.Width; x++)
         for (var y = 0; y < Board.Height; y++)
         {
             var pos = GetCellPosition(board, x, y);
-            var bgColor = (x + y) % 2 == 0 ? new Color(60, 60, 80) : new Color(50, 50, 70);
+            var bgColor = (x + y) % 2 == 0 ? BackgroundColor1 : BackgroundColor2;
             _spriteBatch.Draw(PersistentResources.WhitePixel,
                 new Rectangle((int)pos.X, (int)pos.Y, board.CellSize, board.CellSize), bgColor);
         }
@@ -151,7 +154,7 @@ public class BoardRenderer
         }
     }
 
-    private static Vector2 GetCellPosition(Board board, int x, int y)
+    private static Vector2 GetCellPosition(IBoard board, int x, int y)
     {
         return board.BoardPosition + new Vector2(x * board.CellSize, y * board.CellSize);
     }

@@ -7,7 +7,7 @@ using GameForestTestAssignment.Game.Effects;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class DestroyerService(Board board, IBonusActivator bonusActivator)
+public class DestroyerService(IBoard board, IBonusActivator bonusActivator)
 {
     private readonly List<Destroyer> _destroyers = [];
 

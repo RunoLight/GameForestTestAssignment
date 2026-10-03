@@ -9,7 +9,7 @@ using GameForestTestAssignment.Game.Effects;
 namespace GameForestTestAssignment.Game.GameLogic;
 
 public class RemovalService(
-    Board board,
+    IBoard board,
     AnimationManager animationManager,
     ScoreManager scoreManager,
     ParticlePool particlePool,
@@ -36,7 +36,7 @@ public class RemovalService(
     {
         foreach (var cell in _cellsToRemove)
         {
-            if (!Board.IsInBounds(cell.X, cell.Y))
+            if (!board.IsInBounds(cell.X, cell.Y))
                 continue;
 
             board[cell.X, cell.Y].CellType = CellType.None;
@@ -49,7 +49,7 @@ public class RemovalService(
 
     private void TryMarkForRemoval(int x, int y, bool awardScore)
     {
-        if (!Board.IsInBounds(x, y))
+        if (!board.IsInBounds(x, y))
             return;
 
         if (board[x, y].CellType == CellType.None)

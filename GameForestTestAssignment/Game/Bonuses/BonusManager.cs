@@ -12,7 +12,14 @@ public class BonusManager
     private readonly Queue<Bonus> _activationQueue = new();
     private readonly HashSet<(int Row, int Col)> _queuedOrActivated = [];
 
+    private IBonusActivator _activator;
+
     public bool HasPending => _activationQueue.Count > 0;
+
+    public void SetActivator(IBonusActivator activationContext)
+    {
+        _activator = activationContext;
+    }
 
     public void QueueBonus(Bonus bonus, int row, int col)
     {
@@ -24,12 +31,12 @@ public class BonusManager
         _activationQueue.Enqueue(bonus);
     }
 
-    public void Flush(IBonusActivator activator)
+    public void Flush()
     {
         while (_activationQueue.Count > 0)
         {
             var activation = _activationQueue.Dequeue();
-            ProcessBonus(activation, activator);
+            ProcessBonus(activation, _activator);
         }
     }
 

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace GameForestTestAssignment.Game.PlayerInput;
 
-public class InputHandler(Board board, int cellSize, Vector2 boardPosition)
+public class InputHandler(int cellSize, Vector2 boardPosition)
 {
     private MouseState _previousMouse = Mouse.GetState();
     private (int x, int y)? _selectedCell;
@@ -75,9 +75,9 @@ public class InputHandler(Board board, int cellSize, Vector2 boardPosition)
         }
     }
 
-    private bool IsValidCell(int x, int y)
+    private static bool IsValidCell(int x, int y)
     {
-        return x >= 0 && x < board.Grid.GetLength(0) &&
-               y >= 0 && y < board.Grid.GetLength(1);
+        return x >= 0 && x < Board.Width &&
+               y >= 0 && y < Board.Height;
     }
 }

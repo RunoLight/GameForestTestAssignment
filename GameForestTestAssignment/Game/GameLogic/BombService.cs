@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class BombService(Board board, ParticlePool particlePool, IBonusActivator bonusActivator)
+public class BombService(IBoard board, ParticlePool particlePool, IBonusActivator bonusActivator)
 {
     private readonly List<(int X, int Y, float Delay)> _pendingBombExplosions = [];
 

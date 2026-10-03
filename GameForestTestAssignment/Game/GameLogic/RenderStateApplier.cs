@@ -56,7 +56,9 @@ public class RenderStateApplier(Board board, BoardRenderer boardRenderer)
 
         foreach (var (pos, anim) in removalAnimations)
         {
-            if (!Board.IsInBounds(pos.X, pos.Y)) continue;
+            if (!board.IsInBounds(pos.X, pos.Y))
+                continue;
+
             board.RenderState.SetScale(pos.X, pos.Y, Math.Max(0.01f, anim.GetScale()));
             board.RenderState.SetAlpha(pos.X, pos.Y, anim.GetAlpha());
         }

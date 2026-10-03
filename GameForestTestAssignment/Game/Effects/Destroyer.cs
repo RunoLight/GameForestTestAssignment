@@ -34,7 +34,7 @@ public class Destroyer
     public bool IsAlive { get; private set; } = true;
     public Vector2 ScreenPosition { get; private set; }
 
-    public void Update(float deltaTimeMs, Board board, Action<int, int> onHitCell)
+    public void Update(float deltaTimeMs, IBoard board, Action<int, int> onHitCell)
     {
         if (!IsAlive)
             return;
@@ -56,7 +56,7 @@ public class Destroyer
 
             var ix = (int)Math.Round(_cellX);
             var iy = (int)Math.Round(_cellY);
-            if (Board.IsInBounds(ix, iy) && _hitCells.Add((ix, iy)))
+            if (board.IsInBounds(ix, iy) && _hitCells.Add((ix, iy)))
                 onHitCell(ix, iy);
         }
 

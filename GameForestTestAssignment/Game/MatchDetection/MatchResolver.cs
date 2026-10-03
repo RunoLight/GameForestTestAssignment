@@ -15,7 +15,7 @@ public record ResolutionPlan(
 
 public static class MatchResolver
 {
-    public static ResolutionPlan Build(Board board, MatchDetector detector, (int X, int Y)? lastMoved)
+    public static ResolutionPlan Build(IBoard board, MatchDetector detector, (int X, int Y)? lastMoved)
     {
         var cellsToRemove = new HashSet<(int X, int Y)>();
         var bonusesToSpawn = new Dictionary<(int X, int Y), Bonus>();
@@ -79,7 +79,7 @@ public static class MatchResolver
         return match.Cells[match.Cells.Count / 2];
     }
 
-    private static void TrySpawn(ResolutionPlan plan, Board board, (int X, int Y) cell, Bonus bonus)
+    private static void TrySpawn(ResolutionPlan plan, IBoard board, (int X, int Y) cell, Bonus bonus)
     {
         if (plan.BonusesToSpawn.ContainsKey(cell))
             return;

@@ -9,7 +9,7 @@ using GameForestTestAssignment.Game.Bonuses;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class GravityService(Board board, AnimationManager animationManager, BonusManager bonusManager)
+public class GravityService(IBoard board, AnimationManager animationManager, BonusManager bonusManager)
 {
     public void Apply(Dictionary<(int X, int Y), FallAnimation> fallAnimations)
     {

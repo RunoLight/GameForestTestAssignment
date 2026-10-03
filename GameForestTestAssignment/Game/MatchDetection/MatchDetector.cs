@@ -32,7 +32,7 @@ public class MatchDetector
         HashSet<(int, int)> intersectionCells,
         List<MatchResult> horizontalMatches,
         List<MatchResult>verticalMatches
-        ) FindMatchesWithClassification(Board board)
+        ) FindMatchesWithClassification(IBoard board)
     {
         var allMatches = FindMatches(board);
         var horizontalMatches = new List<MatchResult>();
@@ -59,7 +59,7 @@ public class MatchDetector
         return (intersectionCells, horizontalMatches, verticalMatches);
     }
 
-    private static List<MatchResult> FindMatches(Board board)
+    private static List<MatchResult> FindMatches(IBoard board)
     {
         var matches = new List<MatchResult>();
 
@@ -72,7 +72,7 @@ public class MatchDetector
         return matches;
     }
 
-    private static void ScanRow(Board board, int y, List<MatchResult> matches)
+    private static void ScanRow(IBoard board, int y, List<MatchResult> matches)
     {
         var x = 0;
         while (x < Board.Width)
@@ -101,7 +101,7 @@ public class MatchDetector
         }
     }
 
-    private static void ScanColumn(Board board, int x, List<MatchResult> matches)
+    private static void ScanColumn(IBoard board, int x, List<MatchResult> matches)
     {
         var y = 0;
         while (y < Board.Height)

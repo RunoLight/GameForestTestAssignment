@@ -6,11 +6,20 @@ using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game;
 
-public class Board
+public interface IBoard
 {
-    public const int Width = 8;
-    public const int Height = 8;
+    Cell this[int x, int y] { get; }
+    public int CellSize { get; }
+    public Vector2 BoardPosition { get; }
+    bool IsInBounds(int x, int y);
+    void SwapCells(int x1, int y1, int x2, int y2);
+    void MoveCell(int fromX, int fromY, int toX, int toY);
+    void GenerateRandomBoard();
+    public Vector2 GetCellCenter(int x, int y);
+}
 
+public class Board : IBoard
+{
     public Board()
     {
         Grid = new Cell[Width, Height];
@@ -21,10 +30,13 @@ public class Board
         RenderState = new BoardRenderState(Width, Height);
     }
 
-    public Cell[,] Grid { get; }
+    private Cell[,] Grid { get; }
+
+    public static int Width => 8;
+    public static int Height => 8;
+    public BoardRenderState RenderState { get; }
     public int CellSize { get; init; } = 64;
     public Vector2 BoardPosition { get; init; } = Vector2.Zero;
-    public BoardRenderState RenderState { get; }
 
     public Cell this[int x, int y] => Grid[x, y];
 
@@ -67,9 +79,9 @@ public class Board
         Grid[fromX, fromY].Bonus = null;
     }
 
-    public void ResetRenderStates()
+    public bool IsInBounds(int x, int y)
     {
-        RenderState.Reset();
+        return x >= 0 && x < Width && y >= 0 && y < Height;
     }
 
     public Vector2 GetCellCenter(int x, int y)
@@ -79,9 +91,9 @@ public class Board
             y * CellSize + CellSize * 0.5f);
     }
 
-    public static bool IsInBounds(int x, int y)
+    public void ResetRenderStates()
     {
-        return x is >= 0 and < Width && y is >= 0 and < Height;
+        RenderState.Reset();
     }
 
     private void Clear()

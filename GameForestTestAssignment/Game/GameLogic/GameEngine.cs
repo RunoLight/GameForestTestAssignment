@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class GameEngine : IBonusActivator
+public class GameEngine
 {
     private readonly AnimationManager _animationManager;
     private readonly Board _board;
@@ -40,35 +40,24 @@ public class GameEngine : IBonusActivator
         _bonusManager = bonusManager;
 
         _stateMachine = new GameStateMachine(board, matchDetector, animationManager);
-        _removalService = new RemovalService(board, animationManager, scoreManager, particlePool, this);
-        _bombService = new BombService(board, particlePool, this);
-        _destroyerService = new DestroyerService(board, this);
+
+        var activationContext = new BonusActivationContext();
+
+        _removalService = new RemovalService(board, animationManager, scoreManager, particlePool, activationContext);
+        _bombService = new BombService(board, particlePool, activationContext);
+        _destroyerService = new DestroyerService(board, activationContext);
+
+        _bonusManager.SetActivator(activationContext);
+
+        activationContext.Initialize(_removalService, _bombService, _destroyerService, _bonusManager);
+
+
         _renderStateApplier = new RenderStateApplier(board, boardRenderer);
         _gravityService = new GravityService(board, animationManager, bonusManager);
 
         _inputHandler.SwapRequested += OnSwapRequested;
         _inputHandler.CellSelected += OnCellSelected;
         _inputHandler.SelectionCleared += OnSelectionCleared;
-    }
-
-    void IBonusActivator.MarkCellForRemoval(int x, int y)
-    {
-        _removalService.MarkCellForRemoval(x, y);
-    }
-
-    void IBonusActivator.SpawnDestroyer(int x, int y, int dx, int dy, CellType colorType)
-    {
-        _destroyerService.SpawnDestroyer(x, y, dx, dy, colorType);
-    }
-
-    void IBonusActivator.ScheduleBombExplosion(int x, int y)
-    {
-        _bombService.ScheduleBombExplosion(x, y);
-    }
-
-    void IBonusActivator.QueueBonus(Bonus bonus, int row, int col)
-    {
-        _bonusManager.QueueBonus(bonus, row, col);
     }
 
     public void Update(GameTime gameTime)
@@ -108,7 +97,7 @@ public class GameEngine : IBonusActivator
         _renderStateApplier.UpdateHighlight(deltaTime);
         _destroyerService.Update(deltaTime);
         _bombService.ProcessPendingBombExplosions(deltaTime);
-        _bonusManager.Flush(this);
+        _bonusManager.Flush();
 
         _particlePool.Update(deltaTime);
         _animationManager.Update(deltaTime);
@@ -166,7 +155,7 @@ public class GameEngine : IBonusActivator
                 _bonusManager.QueueBonus(bonus, y, x);
         }
 
-        _bonusManager.Flush(this);
+        _bonusManager.Flush();
     }
 
     private void UpdateResolving()
