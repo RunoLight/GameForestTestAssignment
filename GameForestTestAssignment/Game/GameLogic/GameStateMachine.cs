@@ -75,7 +75,11 @@ public class GameStateMachine(
         var plan = MatchResolver.Build(board, matchDetector, null);
         if (plan.IsEmpty)
         {
-            State = GameState.Idle;
+            if (MoveFinder.HasPossibleMove(board))
+                State = GameState.Idle;
+            else
+                ShuffleBoard();
+
             return null;
         }
 
@@ -93,5 +97,15 @@ public class GameStateMachine(
         animationManager.Play(new SwapAnimation(command.EndX, command.EndY, -offset, animDuration));
 
         State = swapBack ? GameState.SwapBack : GameState.Swapping;
+    }
+
+    private void ShuffleBoard()
+    {
+        board.Shuffle();
+
+        const float dropDuration = 0.5f;
+        for (var x = 0; x < Board.Width; x++)
+        for (var y = 0; y < Board.Height; y++)
+            animationManager.Play(new FallAnimation(x, y, -Board.Height, dropDuration));
     }
 }

@@ -1,3 +1,7 @@
+using System;
+using GameForestTestAssignment.Game.Bonuses;
+using GameForestTestAssignment.Game.MatchDetection;
+
 namespace GameForestTestAssignment.Game;
 
 public interface IBoard
@@ -6,12 +10,15 @@ public interface IBoard
     bool IsInBounds(int x, int y);
     void SwapCells(int x1, int y1, int x2, int y2);
     void MoveCell(int fromX, int fromY, int toX, int toY);
+    void Shuffle();
 }
 
 public class Board : IBoard
 {
     public const int Width = 8;
     public const int Height = 8;
+
+    private const int MaxShuffleAttempts = 100;
 
     private readonly Cell[,] _cells = new Cell[Width, Height];
 
@@ -52,7 +59,41 @@ public class Board : IBoard
         return x is >= 0 and < Width && y is >= 0 and < Height;
     }
 
+    public void Shuffle()
+    {
+        for (var attempt = 0; attempt < MaxShuffleAttempts; attempt++)
+        {
+            PermuteCells();
+            if (!MoveFinder.HasAnyMatch(this) && MoveFinder.HasPossibleMove(this))
+                return;
+        }
+
+        GenerateRandomBoard();
+    }
+
     public void GenerateRandomBoard()
+    {
+        do
+        {
+            FillWithoutMatches();
+        } while (!MoveFinder.HasPossibleMove(this));
+    }
+
+    private void PermuteCells()
+    {
+        var contents = new (CellType Type, Bonus Bonus)[Width * Height];
+        var i = 0;
+        foreach (var cell in _cells)
+            contents[i++] = (cell.CellType, cell.Bonus);
+
+        Random.Shared.Shuffle(contents);
+
+        i = 0;
+        foreach (var cell in _cells)
+            (cell.CellType, cell.Bonus) = contents[i++];
+    }
+
+    private void FillWithoutMatches()
     {
         Clear();
         for (var x = 0; x < Width; x++)
