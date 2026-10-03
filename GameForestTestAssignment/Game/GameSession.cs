@@ -81,11 +81,11 @@ public sealed class GameSession
 
     public void Update(GameTime gameTime)
     {
-        var deltaTimeMs = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+        var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        _timerManager.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-        _engine.Update(deltaTimeMs);
-        _particlePool.Update(deltaTimeMs);
+        _timerManager.Update(deltaTime);
+        _engine.Update(deltaTime);
+        _particlePool.Update(deltaTime);
     }
 
     public void Draw(SpriteBatch spriteBatch)

@@ -30,12 +30,12 @@ public class Destroyer
     public bool IsAlive { get; private set; } = true;
     public Vector2 ScreenPosition { get; private set; }
 
-    public void Update(float deltaTimeMs, IBoard board, Action<int, int> onHitCell)
+    public void Update(float deltaTime, IBoard board, Action<int, int> onHitCell)
     {
         if (!IsAlive)
             return;
 
-        var remaining = CellsPerSecond * (deltaTimeMs / 1000f);
+        var remaining = CellsPerSecond * deltaTime;
         while (remaining > 0f && IsAlive)
         {
             var step = Math.Min(remaining, 0.2f);

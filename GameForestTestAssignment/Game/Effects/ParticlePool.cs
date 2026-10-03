@@ -49,10 +49,8 @@ public class ParticlePool
         }
     }
 
-    public void Update(float deltaTimeMs)
+    public void Update(float deltaTime)
     {
-        var deltaTime = deltaTimeMs / 1000f;
-
         for (var i = 0; i < _particles.Length; i++)
         {
             var p = _particles[i];

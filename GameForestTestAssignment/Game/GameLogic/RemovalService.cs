@@ -38,7 +38,7 @@ public class RemovalService(
         if (awardScore)
             scoreManager.AddScore(1);
 
-        animationManager.Play(new DisappearAnimation(x, y, 280f), () => ClearCell(x, y));
+        animationManager.Play(new DisappearAnimation(x, y, 0.28f), () => ClearCell(x, y));
         particlePool.CreateExplosion(board.GetCellCenter(x, y), board[x, y].CellType.GetColor());
 
         var bonus = board[x, y].Bonus;

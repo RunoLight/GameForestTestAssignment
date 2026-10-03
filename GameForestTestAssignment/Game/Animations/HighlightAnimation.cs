@@ -15,7 +15,7 @@ public class HighlightAnimation(int x, int y) : IAnimation
 
     public void Apply(BoardRenderState renderState)
     {
-        renderState.SetRotation(x, y, (float)Math.Sin(_elapsed * 0.003f) * 0.3f);
-        renderState.SetScale(x, y, 1f + (float)Math.Sin(_elapsed * 0.005f) * 0.08f);
+        renderState.SetRotation(x, y, (float)Math.Sin(_elapsed * 3f) * 0.3f);
+        renderState.SetScale(x, y, 1f + (float)Math.Sin(_elapsed * 5f) * 0.08f);
     }
 }

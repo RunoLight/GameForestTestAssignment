@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game.Animations;
 
-public class FallAnimation(int x, int y, float startOffsetY, float durationMs) : AnimationWithDuration(durationMs)
+public class FallAnimation(int x, int y, float startOffsetY, float duration) : AnimationWithDuration(duration)
 {
     public override void Apply(BoardRenderState renderState)
     {

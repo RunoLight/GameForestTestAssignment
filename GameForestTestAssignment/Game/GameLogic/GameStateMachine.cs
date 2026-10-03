@@ -102,7 +102,7 @@ public class GameStateMachine(
     {
         board.SwapCells(command.StartX, command.StartY, command.EndX, command.EndY);
 
-        const float animDuration = 220f;
+        const float animDuration = 0.22f;
         var offset = new Vector2(command.EndX - command.StartX, command.EndY - command.StartY) * board.CellSize;
         animationManager.Play(new SwapAnimation(command.StartX, command.StartY, offset, animDuration));
         animationManager.Play(new SwapAnimation(command.EndX, command.EndY, -offset, animDuration));

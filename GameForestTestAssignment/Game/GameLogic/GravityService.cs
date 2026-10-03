@@ -18,7 +18,7 @@ public class GravityService(IBoard board, AnimationManager animationManager)
                 if (writePos != readPos)
                 {
                     board.MoveCell(x, readPos, x, writePos);
-                    var duration = Math.Max(120f, Math.Abs(writePos - readPos) * 90f);
+                    var duration = Math.Max(0.12f, Math.Abs(writePos - readPos) * 0.09f);
                     var startOffsetY = (readPos - writePos) * board.CellSize;
                     animationManager.Play(new FallAnimation(x, writePos, startOffsetY, duration));
                 }
@@ -32,7 +32,7 @@ public class GravityService(IBoard board, AnimationManager animationManager)
                 board[x, fillPos].CellType = CellTypeExtensions.RandomType();
                 board[x, fillPos].Bonus = null;
 
-                var duration = Math.Max(160f, emptyCount * 90f);
+                var duration = Math.Max(0.16f, emptyCount * 0.09f);
                 var startOffsetY = -emptyCount * board.CellSize;
                 animationManager.Play(new FallAnimation(x, fillPos, startOffsetY, duration));
             }

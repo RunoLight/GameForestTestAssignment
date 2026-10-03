@@ -3,7 +3,7 @@ using GameForestTestAssignment.Utils;
 
 namespace GameForestTestAssignment.Game.Animations;
 
-public class DisappearAnimation(int x, int y, float durationMs) : AnimationWithDuration(durationMs)
+public class DisappearAnimation(int x, int y, float duration) : AnimationWithDuration(duration)
 {
     public override void Apply(BoardRenderState renderState)
     {

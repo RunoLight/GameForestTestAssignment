@@ -6,13 +6,15 @@ namespace GameForestTestAssignment.Game.GameLogic;
 
 public class BombService(IBoard board, ParticlePool particlePool, BoardEffectQueue effects)
 {
+    private const float ExplosionDelay = 0.25f;
+
     private readonly List<(int X, int Y, float Delay)> _pendingBombExplosions = [];
 
     public int PendingBombCount => _pendingBombExplosions.Count;
 
     public void ScheduleBombExplosion(int x, int y)
     {
-        _pendingBombExplosions.Add((x, y, 250f));
+        _pendingBombExplosions.Add((x, y, ExplosionDelay));
     }
 
     public void ProcessPendingBombExplosions(float deltaTime)
