@@ -62,7 +62,10 @@ public sealed class GameSession
         var removalService = new RemovalService(_board, animationManager, _scoreManager, _particlePool, effects);
         var bombService = new BombService(_board, _particlePool, effects);
         _destroyerService = new DestroyerService(_board, effects);
-        var gravityService = new GravityService(_board, animationManager, bonusManager);
+        var resolution = new ResolutionProcessor(
+            _board, animationManager, effects, bonusManager, removalService, bombService, _destroyerService);
+
+        var gravityService = new GravityService(_board, animationManager);
         var stateMachine = new GameStateMachine(_board, new MatchDetector(), animationManager, gravityService);
         _renderStateApplier = new RenderStateApplier(_board, _boardRenderer, animationManager);
 
@@ -70,17 +73,7 @@ public sealed class GameSession
         inputHandler.CellSelected += _renderStateApplier.SelectCell;
         inputHandler.SelectionCleared += _renderStateApplier.ClearSelection;
 
-        _engine = new GameEngine(
-            _board,
-            stateMachine,
-            inputHandler,
-            animationManager,
-            effects,
-            bonusManager,
-            removalService,
-            bombService,
-            _destroyerService
-        );
+        _engine = new GameEngine(stateMachine, inputHandler, animationManager, resolution);
     }
 
     public int Score => _scoreManager.Score;

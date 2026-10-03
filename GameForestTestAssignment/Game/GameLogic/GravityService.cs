@@ -1,15 +1,12 @@
 using System;
 using GameForestTestAssignment.Game.Animations;
-using GameForestTestAssignment.Game.Bonuses;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class GravityService(IBoard board, AnimationManager animationManager, BonusManager bonusManager)
+public class GravityService(IBoard board, AnimationManager animationManager)
 {
     public void Apply()
     {
-        bonusManager.Clear();
-
         for (var x = 0; x < Board.Width; x++)
         {
             var writePos = Board.Height - 1;
