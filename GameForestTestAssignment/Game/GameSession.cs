@@ -44,6 +44,8 @@ public sealed class GameSession
     private readonly ParticlePool _particlePool;
     private readonly RenderStateApplier _renderStateApplier;
     private readonly ScoreManager _scoreManager;
+    private readonly ScorePopups _scorePopups;
+    private readonly ScreenShake _screenShake;
     private readonly TimerManager _timerManager;
 
     public GameSession(SpriteBatch spriteBatch, Viewport viewport)
@@ -56,13 +58,15 @@ public sealed class GameSession
         _scoreManager = new ScoreManager();
         _timerManager = new TimerManager(RoundDurationSeconds);
         _particlePool = new ParticlePool();
+        _scorePopups = new ScorePopups();
+        _screenShake = new ScreenShake();
 
         var animationManager = new AnimationManager();
         var effects = new BoardEffectQueue();
         var bonusManager = new BonusManager(effects);
-        var removalService =
-            new RemovalService(_board, layout, animationManager, _scoreManager, _particlePool, effects);
-        var bombService = new BombService(layout, _particlePool, effects);
+        var removalService = new RemovalService(
+            _board, layout, animationManager, _scoreManager, _particlePool, _scorePopups, effects);
+        var bombService = new BombService(layout, _particlePool, _screenShake, effects);
         _destroyerService = new DestroyerService(_board, effects);
         var resolution = new ResolutionProcessor(
             _board, animationManager, effects, bonusManager, removalService, bombService, _destroyerService);
@@ -86,26 +90,44 @@ public sealed class GameSession
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         _timerManager.Update(deltaTime);
-        _engine.Update(deltaTime, acceptInput: !_timerManager.IsExpired);
+        _engine.Update(deltaTime, !_timerManager.IsExpired);
         _particlePool.Update(deltaTime);
+        _scorePopups.Update(deltaTime);
+        _screenShake.Update(deltaTime);
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, SpriteFont font, Viewport viewport)
+    {
+        spriteBatch.Begin();
+        DrawBackground(spriteBatch, viewport);
+        spriteBatch.End();
+
+        spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(_screenShake.Offset.X, _screenShake.Offset.Y, 0f));
+        DrawBoard(spriteBatch);
+        spriteBatch.End();
+
+        spriteBatch.Begin();
+        DrawUi(spriteBatch, font, viewport);
+        spriteBatch.End();
+    }
+
+    private void DrawBoard(SpriteBatch spriteBatch)
     {
         _renderStateApplier.ApplyRenderState();
         _boardRenderer.DrawBoard(_board, _renderStateApplier.RenderState);
         _renderStateApplier.DrawEffects(_destroyerService.Destroyers);
         _particlePool.Draw(spriteBatch);
+        _scorePopups.Draw(spriteBatch);
     }
 
-    public void DrawUi(SpriteBatch spriteBatch, SpriteFont font, Viewport viewport)
+    private void DrawUi(SpriteBatch spriteBatch, SpriteFont font, Viewport viewport)
     {
         DrawScore(spriteBatch, font);
         DrawTimer(spriteBatch, font, viewport);
         DrawTimerBar(spriteBatch, viewport);
     }
 
-    public void DrawBackground(SpriteBatch spriteBatch, Viewport viewport)
+    private static void DrawBackground(SpriteBatch spriteBatch, Viewport viewport)
     {
         spriteBatch.Draw(
             PersistentResources.WhitePixel,

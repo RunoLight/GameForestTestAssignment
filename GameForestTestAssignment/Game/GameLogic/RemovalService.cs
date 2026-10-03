@@ -10,6 +10,7 @@ public class RemovalService(
     AnimationManager animationManager,
     ScoreManager scoreManager,
     ParticlePool particlePool,
+    ScorePopups scorePopups,
     BoardEffectQueue effects
 )
 {
@@ -31,10 +32,12 @@ public class RemovalService(
         if (!_cellsToRemove.Add((x, y)))
             return;
 
-        scoreManager.AddScore(1);
+        var points = scoreManager.AwardCell();
+        var center = layout.GetCellCenter(x, y);
 
         animationManager.Play(new DisappearAnimation(x, y, 0.28f), () => ClearCell(x, y));
-        particlePool.CreateExplosion(layout.GetCellCenter(x, y), board[x, y].CellType.GetColor());
+        particlePool.CreateExplosion(center, board[x, y].CellType.GetColor());
+        scorePopups.Spawn(center, points);
 
         var bonus = board[x, y].Bonus;
         if (bonus != null)

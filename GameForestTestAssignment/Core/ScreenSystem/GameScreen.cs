@@ -36,12 +36,6 @@ public class GameScreen : Screen
 
     public override void Draw()
     {
-        SpriteBatch.Begin();
-
-        _session.DrawBackground(SpriteBatch, Viewport);
-        _session.Draw(SpriteBatch);
-        _session.DrawUi(SpriteBatch, Font, Viewport);
-
-        SpriteBatch.End();
+        _session.Draw(SpriteBatch, Font, Viewport);
     }
 }

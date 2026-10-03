@@ -5,8 +5,9 @@ public class ScoreManager
     private const int CellReward = 10;
     public int Score { get; private set; }
 
-    public void AddScore(int cellsDestroyed)
+    public int AwardCell()
     {
-        Score += cellsDestroyed * CellReward;
+        Score += CellReward;
+        return CellReward;
     }
 }
