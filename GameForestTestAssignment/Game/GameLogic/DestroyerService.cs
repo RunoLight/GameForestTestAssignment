@@ -12,7 +12,7 @@ public class DestroyerService(IBoard board, BoardEffectQueue effects)
 
     public void SpawnDestroyer(int x, int y, int dx, int dy, CellType colorType)
     {
-        _destroyers.Add(new Destroyer(x, y, dx, dy, colorType, board.GetCellCenter(x, y)));
+        _destroyers.Add(new Destroyer(x, y, dx, dy, colorType));
     }
 
     public void Update(float deltaTime)

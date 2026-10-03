@@ -4,9 +4,11 @@ using GameForestTestAssignment.Game.Effects;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class RenderStateApplier(Board board, BoardRenderer boardRenderer, AnimationManager animationManager)
+public class RenderStateApplier(BoardRenderer boardRenderer, AnimationManager animationManager)
 {
     private HighlightAnimation _highlight;
+
+    public BoardRenderState RenderState { get; } = new(Board.Width, Board.Height);
 
     public void SelectCell(int x, int y)
     {
@@ -26,13 +28,13 @@ public class RenderStateApplier(Board board, BoardRenderer boardRenderer, Animat
 
     public void ApplyRenderState()
     {
-        board.ResetRenderStates();
-        animationManager.ApplyTo(board.RenderState);
+        RenderState.Reset();
+        animationManager.ApplyTo(RenderState);
     }
 
     public void DrawEffects(IEnumerable<Destroyer> destroyers)
     {
         foreach (var destroyer in destroyers)
-            boardRenderer.DrawDestroyer(destroyer.ScreenPosition, destroyer.ColorType.GetColor(), board.CellSize);
+            boardRenderer.DrawDestroyer(destroyer.X, destroyer.Y, destroyer.ColorType.GetColor());
     }
 }

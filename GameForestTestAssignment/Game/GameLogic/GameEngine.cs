@@ -1,5 +1,6 @@
 using System;
 using GameForestTestAssignment.Game.Animations;
+using GameForestTestAssignment.Game.MatchDetection;
 using GameForestTestAssignment.Game.PlayerInput;
 
 namespace GameForestTestAssignment.Game.GameLogic;
@@ -27,29 +28,27 @@ public class GameEngine
         _inputHandler.Enabled = _stateMachine.CanAcceptInput;
         _inputHandler.Update();
 
+        ResolutionPlan plan = null;
         switch (_stateMachine.State)
         {
             case GameState.Swapping:
             case GameState.SwapBack:
-            {
-                var (swapComplete, plan) = _stateMachine.UpdateSwap();
-                if (swapComplete && plan != null) _resolution.Start(plan);
+                plan = _stateMachine.UpdateSwap();
                 break;
-            }
             case GameState.Resolving:
                 if (_resolution.IsFinished) _stateMachine.ApplyGravity();
                 break;
             case GameState.Falling:
-            {
-                var (fallComplete, plan) = _stateMachine.UpdateFalling();
-                if (fallComplete && plan != null) _resolution.Start(plan);
+                plan = _stateMachine.UpdateFalling();
                 break;
-            }
             case GameState.Idle:
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        if (plan != null)
+            _resolution.Start(plan);
 
         _resolution.Update(deltaTime);
         _animationManager.Update(deltaTime);

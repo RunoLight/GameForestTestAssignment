@@ -5,41 +5,42 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameForestTestAssignment.Game;
 
-public class BoardRenderer(SpriteBatch spriteBatch, int textureSize = 64)
+public class BoardRenderer(SpriteBatch spriteBatch, BoardLayout layout, int textureSize = 64)
 {
     private static readonly Color BackgroundColor1 = new(60, 60, 80);
     private static readonly Color BackgroundColor2 = new(50, 50, 70);
 
-    public void DrawBoard(Board board)
+    public void DrawBoard(IBoard board, BoardRenderState renderState)
     {
-        DrawBoardBackground(board);
-        DrawCells(board);
+        DrawBoardBackground();
+        DrawCells(board, renderState);
     }
 
-    public void DrawDestroyer(Vector2 center, Color color, int cellSize)
+    public void DrawDestroyer(float x, float y, Color color)
     {
-        var radius = cellSize * 0.28f;
+        var center = layout.GetCellCenter(x, y);
+        var radius = layout.CellSize * 0.28f;
         spriteBatch.Draw(PersistentResources.ShapeTextures[CellType.Circle], center, null, color, 0f,
             new Vector2(textureSize / 2f), radius * 2f / textureSize, SpriteEffects.None, 0f);
         spriteBatch.Draw(PersistentResources.ShapeTextures[CellType.Circle], center, null, Color.White * 0.7f, 0f,
             new Vector2(textureSize / 2f), radius * 0.8f / textureSize, SpriteEffects.None, 0f);
     }
 
-    private void DrawBoardBackground(IBoard board)
+    private void DrawBoardBackground()
     {
         for (var x = 0; x < Board.Width; x++)
         for (var y = 0; y < Board.Height; y++)
         {
-            var pos = GetCellPosition(board, x, y);
+            var pos = layout.GetCellTopLeft(x, y);
             var bgColor = (x + y) % 2 == 0 ? BackgroundColor1 : BackgroundColor2;
             spriteBatch.Draw(PersistentResources.WhitePixel,
-                new Rectangle((int)pos.X, (int)pos.Y, board.CellSize, board.CellSize), bgColor);
+                new Rectangle((int)pos.X, (int)pos.Y, layout.CellSize, layout.CellSize), bgColor);
         }
     }
 
-    private void DrawCells(Board board)
+    private void DrawCells(IBoard board, BoardRenderState renderState)
     {
-        var texScaleBase = board.CellSize / (float)textureSize;
+        var texScaleBase = layout.CellSize / (float)textureSize;
 
         for (var x = 0; x < Board.Width; x++)
         for (var y = 0; y < Board.Height; y++)
@@ -48,27 +49,26 @@ public class BoardRenderer(SpriteBatch spriteBatch, int textureSize = 64)
             if (cell.IsEmpty)
                 continue;
 
-            var render = board.RenderState[x, y];
+            var render = renderState[x, y];
             var tex = PersistentResources.ShapeTextures[cell.CellType];
             var origin = new Vector2(textureSize / 2f);
-            var center = GetCellPosition(board, x, y) + new Vector2(board.CellSize / 2f) + render.Offset;
+            var center = layout.GetCellCenter(x, y) + render.Offset * layout.CellSize;
             var scale = texScaleBase * render.Scale;
             var tint = cell.CellType.GetColor() * render.Alpha;
 
             spriteBatch.Draw(tex, center, null, tint, render.Rotation, origin, scale, SpriteEffects.None, 0f);
 
             if (cell.Bonus != null)
-                DrawBonusIndicator(board, center, cell, x, y);
+                DrawBonusIndicator(cell.Bonus, center, render);
         }
     }
 
-    private void DrawBonusIndicator(Board board, Vector2 center, Cell cell, int x, int y)
+    private void DrawBonusIndicator(Bonus bonus, Vector2 center, BoardRenderState.CellRenderState render)
     {
-        var render = board.RenderState[x, y];
         var accent = Color.White * (0.85f * render.Alpha);
-        var size = board.CellSize * render.Scale;
+        var size = layout.CellSize * render.Scale;
 
-        switch (cell.Bonus)
+        switch (bonus)
         {
             case LineBonus { Orientation: BonusOrientation.Horizontal }:
                 spriteBatch.Draw(PersistentResources.WhitePixel,
@@ -86,10 +86,5 @@ public class BoardRenderer(SpriteBatch spriteBatch, int textureSize = 64)
                     new Vector2(textureSize / 2f), bombRadius * 2f / textureSize, SpriteEffects.None, 0f);
                 break;
         }
-    }
-
-    private static Vector2 GetCellPosition(IBoard board, int x, int y)
-    {
-        return board.BoardPosition + new Vector2(x * board.CellSize, y * board.CellSize);
     }
 }

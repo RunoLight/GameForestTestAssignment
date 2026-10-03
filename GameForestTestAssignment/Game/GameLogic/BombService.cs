@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace GameForestTestAssignment.Game.GameLogic;
 
-public class BombService(IBoard board, ParticlePool particlePool, BoardEffectQueue effects)
+public class BombService(BoardLayout layout, ParticlePool particlePool, BoardEffectQueue effects)
 {
     private const float ExplosionDelay = 0.25f;
 
@@ -33,7 +33,7 @@ public class BombService(IBoard board, ParticlePool particlePool, BoardEffectQue
             for (var dy = -1; dy <= 1; dy++)
                 effects.Enqueue(new RemoveCellEffect(x + dx, y + dy));
 
-            particlePool.CreateBigExplosion(board.GetCellCenter(x, y), Color.Orange);
+            particlePool.CreateBigExplosion(layout.GetCellCenter(x, y), Color.Orange);
             _pendingBombExplosions.RemoveAt(i);
         }
     }

@@ -15,13 +15,13 @@ public enum GameState
 }
 
 public class GameStateMachine(
-    Board board,
+    IBoard board,
     MatchDetector matchDetector,
     AnimationManager animationManager,
     GravityService gravityService
 )
 {
-    private SwapCommand? _currentSwap;
+    private SwapCommand _currentSwap;
 
     public GameState State { get; private set; } = GameState.Idle;
     public bool CanAcceptInput => State == GameState.Idle;
@@ -35,67 +35,52 @@ public class GameStateMachine(
         BeginSwap(command, false);
     }
 
-    // Returns (swapComplete, plan) - plan is null for swap-back, non-null for valid match
-    public (bool swapComplete, ResolutionPlan plan ) UpdateSwap()
+    /// <returns> A plan once the swap animation ends with a match; null otherwise. </returns>
+    public ResolutionPlan UpdateSwap()
     {
-        if (State is not (GameState.Swapping or GameState.SwapBack))
-            return (false, null);
-
-        if (animationManager.IsPlaying<SwapAnimation>())
-            return (false, null);
+        if (State is not (GameState.Swapping or GameState.SwapBack) ||
+            animationManager.IsPlaying<SwapAnimation>())
+            return null;
 
         if (State == GameState.SwapBack)
         {
-            _currentSwap = null;
             State = GameState.Idle;
-            return (true, null);
+            return null;
         }
 
-        if (_currentSwap == null)
+        var plan = MatchResolver.Build(board, matchDetector, (_currentSwap.EndX, _currentSwap.EndY));
+        if (!plan.Involves(_currentSwap.StartX, _currentSwap.StartY) &&
+            !plan.Involves(_currentSwap.EndX, _currentSwap.EndY))
         {
-            State = GameState.Idle;
-            return (true, null);
-        }
-
-        var plan = MatchResolver.Build(
-            board, matchDetector, (_currentSwap.Value.EndX, _currentSwap.Value.EndY)
-        );
-        if (!plan.Involves(_currentSwap.Value.StartX, _currentSwap.Value.StartY) &&
-            !plan.Involves(_currentSwap.Value.EndX, _currentSwap.Value.EndY))
-        {
-            BeginSwap(_currentSwap.Value, true);
-            return (false, null);
+            BeginSwap(_currentSwap, true);
+            return null;
         }
 
         State = GameState.Resolving;
-        return (true, plan);
+        return plan;
     }
 
     public void ApplyGravity()
     {
         gravityService.Apply();
         State = GameState.Falling;
-        _currentSwap = null;
     }
 
-    // Returns (fallComplete, plan) - plan is null if no new matches, non-null if cascade
-    public (bool fallComplete, ResolutionPlan plan) UpdateFalling()
+    /// <returns> Returns a plan once the fall animation ends with a cascade match; null otherwise. </returns>
+    public ResolutionPlan UpdateFalling()
     {
-        if (State != GameState.Falling)
-            return (false, null);
-
-        if (animationManager.IsPlaying<FallAnimation>())
-            return (false, null);
+        if (State != GameState.Falling || animationManager.IsPlaying<FallAnimation>())
+            return null;
 
         var plan = MatchResolver.Build(board, matchDetector, null);
         if (plan.IsEmpty)
         {
             State = GameState.Idle;
-            return (true, null);
+            return null;
         }
 
         State = GameState.Resolving;
-        return (true, plan);
+        return plan;
     }
 
     private void BeginSwap(SwapCommand command, bool swapBack)
@@ -103,7 +88,7 @@ public class GameStateMachine(
         board.SwapCells(command.StartX, command.StartY, command.EndX, command.EndY);
 
         const float animDuration = 0.22f;
-        var offset = new Vector2(command.EndX - command.StartX, command.EndY - command.StartY) * board.CellSize;
+        var offset = new Vector2(command.EndX - command.StartX, command.EndY - command.StartY);
         animationManager.Play(new SwapAnimation(command.StartX, command.StartY, offset, animDuration));
         animationManager.Play(new SwapAnimation(command.EndX, command.EndY, -offset, animDuration));
 

@@ -48,10 +48,11 @@ public sealed class GameSession
 
     public GameSession(SpriteBatch spriteBatch, Viewport viewport)
     {
-        _board = CreateBoard(viewport);
+        var layout = CreateLayout(viewport);
+        _board = new Board();
         _board.GenerateRandomBoard();
 
-        _boardRenderer = new BoardRenderer(spriteBatch);
+        _boardRenderer = new BoardRenderer(spriteBatch, layout);
         _scoreManager = new ScoreManager();
         _timerManager = new TimerManager(RoundDurationSeconds);
         _particlePool = new ParticlePool();
@@ -59,17 +60,18 @@ public sealed class GameSession
         var animationManager = new AnimationManager();
         var effects = new BoardEffectQueue();
         var bonusManager = new BonusManager(effects);
-        var removalService = new RemovalService(_board, animationManager, _scoreManager, _particlePool, effects);
-        var bombService = new BombService(_board, _particlePool, effects);
+        var removalService =
+            new RemovalService(_board, layout, animationManager, _scoreManager, _particlePool, effects);
+        var bombService = new BombService(layout, _particlePool, effects);
         _destroyerService = new DestroyerService(_board, effects);
         var resolution = new ResolutionProcessor(
             _board, animationManager, effects, bonusManager, removalService, bombService, _destroyerService);
 
         var gravityService = new GravityService(_board, animationManager);
         var stateMachine = new GameStateMachine(_board, new MatchDetector(), animationManager, gravityService);
-        _renderStateApplier = new RenderStateApplier(_board, _boardRenderer, animationManager);
+        _renderStateApplier = new RenderStateApplier(_boardRenderer, animationManager);
 
-        var inputHandler = new InputHandler(_board.CellSize, _board.BoardPosition);
+        var inputHandler = new InputHandler(layout.CellSize, layout.Position);
         inputHandler.CellSelected += _renderStateApplier.SelectCell;
         inputHandler.SelectionCleared += _renderStateApplier.ClearSelection;
 
@@ -91,7 +93,7 @@ public sealed class GameSession
     public void Draw(SpriteBatch spriteBatch)
     {
         _renderStateApplier.ApplyRenderState();
-        _boardRenderer.DrawBoard(_board);
+        _boardRenderer.DrawBoard(_board, _renderStateApplier.RenderState);
         _renderStateApplier.DrawEffects(_destroyerService.Destroyers);
         _particlePool.Draw(spriteBatch);
     }
@@ -111,7 +113,7 @@ public sealed class GameSession
             BackgroundColor);
     }
 
-    private static Board CreateBoard(Viewport viewport)
+    private static BoardLayout CreateLayout(Viewport viewport)
     {
         var availableWidth = viewport.Width - BoardMarginX;
         var availableHeight = viewport.Height - BoardMarginY;
@@ -124,11 +126,7 @@ public sealed class GameSession
             BoardTopOffset + (availableHeight - cellSize * Board.Height) / 2f
         );
 
-        return new Board
-        {
-            CellSize = cellSize,
-            BoardPosition = boardPosition
-        };
+        return new BoardLayout(cellSize, boardPosition);
     }
 
     private void DrawScore(SpriteBatch spriteBatch, SpriteFont font)

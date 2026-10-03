@@ -1,40 +1,56 @@
-using Microsoft.Xna.Framework;
-
 namespace GameForestTestAssignment.Game;
 
 public interface IBoard
 {
     Cell this[int x, int y] { get; }
-    public int CellSize { get; }
-    public Vector2 BoardPosition { get; }
     bool IsInBounds(int x, int y);
     void SwapCells(int x1, int y1, int x2, int y2);
     void MoveCell(int fromX, int fromY, int toX, int toY);
-    void GenerateRandomBoard();
-    public Vector2 GetCellCenter(int x, int y);
 }
 
 public class Board : IBoard
 {
+    public const int Width = 8;
+    public const int Height = 8;
+
+    private readonly Cell[,] _cells = new Cell[Width, Height];
+
     public Board()
     {
-        Grid = new Cell[Width, Height];
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Height; y++)
-            Grid[x, y] = new Cell();
-
-        RenderState = new BoardRenderState(Width, Height);
+            _cells[x, y] = new Cell();
     }
 
-    private Cell[,] Grid { get; }
+    public Cell this[int x, int y] => _cells[x, y];
 
-    public static int Width => 8;
-    public static int Height => 8;
-    public BoardRenderState RenderState { get; }
-    public int CellSize { get; init; } = 64;
-    public Vector2 BoardPosition { get; init; } = Vector2.Zero;
+    public void SwapCells(int x1, int y1, int x2, int y2)
+    {
+        var tempType = _cells[x1, y1].CellType;
+        var tempBonus = _cells[x1, y1].Bonus;
 
-    public Cell this[int x, int y] => Grid[x, y];
+        _cells[x1, y1].CellType = _cells[x2, y2].CellType;
+        _cells[x1, y1].Bonus = _cells[x2, y2].Bonus;
+
+        _cells[x2, y2].CellType = tempType;
+        _cells[x2, y2].Bonus = tempBonus;
+    }
+
+    public void MoveCell(int fromX, int fromY, int toX, int toY)
+    {
+        if (fromX == toX && fromY == toY)
+            return;
+
+        _cells[toX, toY].CellType = _cells[fromX, fromY].CellType;
+        _cells[toX, toY].Bonus = _cells[fromX, fromY].Bonus;
+        _cells[fromX, fromY].CellType = CellType.None;
+        _cells[fromX, fromY].Bonus = null;
+    }
+
+    public bool IsInBounds(int x, int y)
+    {
+        return x is >= 0 and < Width && y is >= 0 and < Height;
+    }
 
     public void GenerateRandomBoard()
     {
@@ -48,58 +64,14 @@ public class Board : IBoard
                 type = CellTypeExtensions.RandomType();
             } while (WouldCreateMatch(x, y, type));
 
-            Grid[x, y].CellType = type;
+            _cells[x, y].CellType = type;
         }
-    }
-
-    public void SwapCells(int x1, int y1, int x2, int y2)
-    {
-        var tempType = Grid[x1, y1].CellType;
-        var tempBonus = Grid[x1, y1].Bonus;
-
-        Grid[x1, y1].CellType = Grid[x2, y2].CellType;
-        Grid[x1, y1].Bonus = Grid[x2, y2].Bonus;
-
-        Grid[x2, y2].CellType = tempType;
-        Grid[x2, y2].Bonus = tempBonus;
-    }
-
-    public void MoveCell(int fromX, int fromY, int toX, int toY)
-    {
-        if (fromX == toX && fromY == toY)
-            return;
-
-        Grid[toX, toY].CellType = Grid[fromX, fromY].CellType;
-        Grid[toX, toY].Bonus = Grid[fromX, fromY].Bonus;
-        Grid[fromX, fromY].CellType = CellType.None;
-        Grid[fromX, fromY].Bonus = null;
-    }
-
-    public bool IsInBounds(int x, int y)
-    {
-        return x >= 0 && x < Width && y >= 0 && y < Height;
-    }
-
-    public Vector2 GetCellCenter(int x, int y)
-    {
-        return BoardPosition + new Vector2(
-            x * CellSize + CellSize * 0.5f,
-            y * CellSize + CellSize * 0.5f);
-    }
-
-    public void ResetRenderStates()
-    {
-        RenderState.Reset();
     }
 
     private void Clear()
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Height; y++)
-        {
-            Grid[x, y] ??= new Cell();
-            Grid[x, y].Reset();
-        }
+        foreach (var cell in _cells)
+            cell.Reset();
     }
 
     private bool WouldCreateMatch(int x, int y, CellType type)
@@ -107,7 +79,7 @@ public class Board : IBoard
         // Check horizontal
         var hCount = 1;
         for (var dx = -1; dx >= -2; dx--)
-            if (x + dx >= 0 && Grid[x + dx, y].CellType == type)
+            if (x + dx >= 0 && _cells[x + dx, y].CellType == type)
                 hCount++;
             else
                 break;
@@ -118,7 +90,7 @@ public class Board : IBoard
         // Check vertical
         var vCount = 1;
         for (var dy = -1; dy >= -2; dy--)
-            if (y + dy >= 0 && Grid[x, y + dy].CellType == type)
+            if (y + dy >= 0 && _cells[x, y + dy].CellType == type)
                 vCount++;
             else
                 break;

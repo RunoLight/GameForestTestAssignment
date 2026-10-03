@@ -6,6 +6,7 @@ namespace GameForestTestAssignment.Game.GameLogic;
 
 public class RemovalService(
     IBoard board,
+    BoardLayout layout,
     AnimationManager animationManager,
     ScoreManager scoreManager,
     ParticlePool particlePool,
@@ -39,7 +40,7 @@ public class RemovalService(
             scoreManager.AddScore(1);
 
         animationManager.Play(new DisappearAnimation(x, y, 0.28f), () => ClearCell(x, y));
-        particlePool.CreateExplosion(board.GetCellCenter(x, y), board[x, y].CellType.GetColor());
+        particlePool.CreateExplosion(layout.GetCellCenter(x, y), board[x, y].CellType.GetColor());
 
         var bonus = board[x, y].Bonus;
         if (bonus != null)

@@ -50,6 +50,7 @@ public class BoardRenderState
     public record struct CellRenderState
     {
         public float Alpha;
+        // In cells, not pixels.
         public Vector2 Offset;
         public float Rotation;
         public float Scale;
