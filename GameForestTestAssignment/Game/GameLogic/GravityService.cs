@@ -1,11 +1,7 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using GameForestTestAssignment.Game.Animations;
 using GameForestTestAssignment.Game.Bonuses;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.GameLogic;
 

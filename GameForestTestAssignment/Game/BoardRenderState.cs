@@ -1,8 +1,4 @@
-#region
-
 using Microsoft.Xna.Framework;
-
-#endregion
 
 namespace GameForestTestAssignment.Game;
 

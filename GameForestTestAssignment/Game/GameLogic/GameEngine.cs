@@ -1,5 +1,3 @@
-#region
-
 using System;
 using GameForestTestAssignment.Game.Animations;
 using GameForestTestAssignment.Game.Bonuses;
@@ -7,8 +5,6 @@ using GameForestTestAssignment.Game.Effects;
 using GameForestTestAssignment.Game.MatchDetection;
 using GameForestTestAssignment.Game.PlayerInput;
 using Microsoft.Xna.Framework;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.GameLogic;
 

@@ -1,11 +1,7 @@
-#region
-
 using GameForestTestAssignment.Core;
 using GameForestTestAssignment.Game.Bonuses;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-#endregion
 
 namespace GameForestTestAssignment.Game;
 

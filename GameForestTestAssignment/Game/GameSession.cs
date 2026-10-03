@@ -1,5 +1,3 @@
-#region
-
 using System;
 using GameForestTestAssignment.Core;
 using GameForestTestAssignment.Game.Animations;
@@ -11,8 +9,6 @@ using GameForestTestAssignment.Game.PlayerInput;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-#endregion
-
 namespace GameForestTestAssignment.Game;
 
 /// <summary>
@@ -22,6 +18,24 @@ namespace GameForestTestAssignment.Game;
 public sealed class GameSession
 {
     private const float RoundDurationSeconds = 60f;
+
+    private const int BoardMarginX = 100;
+    private const int BoardMarginY = 120;
+    private const int BoardTopOffset = 80;
+    private const int MinCellSize = 40;
+    private const int MaxCellSize = 80;
+
+    private const float TimerBarWidth = 200f;
+    private const float TimerBarHeight = 6f;
+    private const float TimerBarY = 18f;
+    private const float ScoreMargin = 20f;
+    private const float TimerMargin = 20f;
+    private const float TimerWarningThreshold = 10f;
+
+    private static readonly Color BackgroundColor = new(12, 12, 28);
+    private static readonly Color TimerBarBackground = new(40, 40, 60);
+    private static readonly Color TimerBarColor = Color.Cyan;
+    private static readonly Color TimerBarWarning = Color.OrangeRed;
 
     private readonly Board _board;
     private readonly BoardRenderer _boardRenderer;
@@ -138,30 +152,4 @@ public sealed class GameSession
         spriteBatch.Draw(PersistentResources.WhitePixel, backgroundRect, TimerBarBackground);
         spriteBatch.Draw(PersistentResources.WhitePixel, fillRect, fillColor);
     }
-
-    #region Layout Constants
-
-    private const int BoardMarginX = 100;
-    private const int BoardMarginY = 120;
-    private const int BoardTopOffset = 80;
-    private const int MinCellSize = 40;
-    private const int MaxCellSize = 80;
-
-    #endregion
-
-    #region UI Constants
-
-    private const float TimerBarWidth = 200f;
-    private const float TimerBarHeight = 6f;
-    private const float TimerBarY = 18f;
-    private const float ScoreMargin = 20f;
-    private const float TimerMargin = 20f;
-    private const float TimerWarningThreshold = 10f;
-
-    private static readonly Color BackgroundColor = new(12, 12, 28);
-    private static readonly Color TimerBarBackground = new(40, 40, 60);
-    private static readonly Color TimerBarColor = Color.Cyan;
-    private static readonly Color TimerBarWarning = Color.OrangeRed;
-
-    #endregion
 }

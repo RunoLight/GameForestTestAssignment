@@ -1,9 +1,5 @@
-#region
-
 using System;
 using System.ComponentModel;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.Bonuses;
 

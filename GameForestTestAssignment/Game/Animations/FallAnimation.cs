@@ -1,9 +1,5 @@
-#region
-
 using System;
 using GameForestTestAssignment.Utils;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.Animations;
 

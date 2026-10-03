@@ -1,11 +1,7 @@
-#region
-
 using System;
 using GameForestTestAssignment.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.Effects;
 

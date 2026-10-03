@@ -1,12 +1,8 @@
-#region
-
 using System;
 using System.Collections.Generic;
 using GameForestTestAssignment.Game.Animations;
 using GameForestTestAssignment.Game.Effects;
 using Microsoft.Xna.Framework;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.GameLogic;
 

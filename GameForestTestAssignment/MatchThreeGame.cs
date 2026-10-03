@@ -1,11 +1,7 @@
-﻿#region
-
-using GameForestTestAssignment.Core;
+﻿using GameForestTestAssignment.Core;
 using GameForestTestAssignment.Core.ScreenSystem;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-
-#endregion
 
 namespace GameForestTestAssignment;
 

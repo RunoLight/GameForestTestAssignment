@@ -1,10 +1,6 @@
-#region
-
 using System;
 using GameForestTestAssignment.Utils;
 using Microsoft.Xna.Framework;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.Animations;
 

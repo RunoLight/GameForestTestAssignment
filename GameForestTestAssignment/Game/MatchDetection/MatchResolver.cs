@@ -6,11 +6,15 @@ namespace GameForestTestAssignment.Game.MatchDetection;
 public record ResolutionPlan(
     HashSet<(int X, int Y)> CellsToRemove,
     Dictionary<(int X, int Y), Bonus> BonusesToSpawn,
-    List<(int X, int Y)> BonusesToActivate) {
+    List<(int X, int Y)> BonusesToActivate)
+{
     public bool IsEmpty => CellsToRemove.Count == 0 && BonusesToSpawn.Count == 0 && BonusesToActivate.Count == 0;
-    public bool Involves(int x, int y) =>
-        CellsToRemove.Contains((x, y)) || BonusesToSpawn.ContainsKey((x, y)) ||
-        BonusesToActivate.Exists(p => p.X == x && p.Y == y);
+
+    public bool Involves(int x, int y)
+    {
+        return CellsToRemove.Contains((x, y)) || BonusesToSpawn.ContainsKey((x, y)) ||
+               BonusesToActivate.Exists(p => p.X == x && p.Y == y);
+    }
 }
 
 public static class MatchResolver
@@ -30,22 +34,16 @@ public static class MatchResolver
 
         var matchCells = new HashSet<(int X, int Y)>();
         foreach (var match in allMatches)
-        {
-            foreach (var cell in match.Cells)
-                matchCells.Add(cell);
-        }
+        foreach (var cell in match.Cells)
+            matchCells.Add(cell);
 
         foreach (var cell in matchCells)
-        {
             if (board[cell.X, cell.Y].Bonus != null)
                 plan.BonusesToActivate.Add(cell);
-        }
 
         foreach (var intersection in intersections)
-        {
             TrySpawn(plan, board, intersection,
                 BonusFactory.Create(BonusType.Bomb, board[intersection.Item1, intersection.Item2].CellType));
-        }
 
         foreach (var match in allMatches)
         {
@@ -64,10 +62,8 @@ public static class MatchResolver
         }
 
         foreach (var cell in matchCells)
-        {
             if (!plan.BonusesToSpawn.ContainsKey(cell))
                 plan.CellsToRemove.Add(cell);
-        }
 
         return plan;
     }

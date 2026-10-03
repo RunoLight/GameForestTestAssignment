@@ -1,8 +1,4 @@
-#region
-
 using GameForestTestAssignment.Game.Bonuses;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.GameLogic;
 

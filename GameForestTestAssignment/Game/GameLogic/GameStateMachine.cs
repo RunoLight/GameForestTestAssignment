@@ -1,12 +1,8 @@
-#region
-
 using System.Collections.Generic;
 using GameForestTestAssignment.Game.Animations;
 using GameForestTestAssignment.Game.MatchDetection;
 using GameForestTestAssignment.Game.PlayerInput;
 using Microsoft.Xna.Framework;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.GameLogic;
 

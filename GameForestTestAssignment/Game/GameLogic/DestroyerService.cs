@@ -1,9 +1,5 @@
-#region
-
 using System.Collections.Generic;
 using GameForestTestAssignment.Game.Effects;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.GameLogic;
 

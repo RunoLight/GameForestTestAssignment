@@ -1,9 +1,5 @@
-#region
-
 using System.Collections.Generic;
 using GameForestTestAssignment.Game.GameLogic;
-
-#endregion
 
 namespace GameForestTestAssignment.Game.Bonuses;
 
