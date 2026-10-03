@@ -8,7 +8,7 @@ namespace GameForestTestAssignment.Game.GameLogic;
 
 public class RenderStateApplier(Board board, BoardRenderer boardRenderer)
 {
-    private HighlightAnimation _highlightAnim = null!;
+    private HighlightAnimation _highlightAnim;
     private int _selectedX = -1, _selectedY = -1;
 
     public void SelectCell(int x, int y)

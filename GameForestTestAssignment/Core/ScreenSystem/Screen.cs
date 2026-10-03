@@ -33,7 +33,7 @@ public abstract class Screen
     public virtual void UnloadContent()
     {
         SpriteBatch?.Dispose();
-        Font = null!;
-        SpriteBatch = null!;
+        Font = null;
+        SpriteBatch = null;
     }
 }

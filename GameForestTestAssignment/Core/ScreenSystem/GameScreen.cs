@@ -7,7 +7,7 @@ namespace GameForestTestAssignment.Core.ScreenSystem;
 public class GameScreen : Screen
 {
     private bool _gameOverTriggered;
-    private GameSession _session = null!;
+    private GameSession _session;
 
     public override void OnEnter()
     {

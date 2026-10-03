@@ -4,10 +4,10 @@ namespace GameForestTestAssignment.Game.GameLogic;
 
 public sealed class BonusActivationContext : IBonusActivator
 {
-    private BombService _bomb = null!;
-    private BonusManager _bonusManager = null!;
-    private DestroyerService _destroyer = null!;
-    private RemovalService _removal = null!;
+    private BombService _bomb;
+    private BonusManager _bonusManager;
+    private DestroyerService _destroyer;
+    private RemovalService _removal;
 
     public void MarkCellForRemoval(int x, int y)
     {

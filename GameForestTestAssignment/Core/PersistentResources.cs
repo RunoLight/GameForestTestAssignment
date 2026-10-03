@@ -13,9 +13,9 @@ public static class PersistentResources
 
     private static bool _isInitialized;
 
-    public static Texture2D WhitePixel { get; private set; } = null!;
-    public static SpriteFont Font { get; private set; } = null!;
-    public static Dictionary<CellType, Texture2D> ShapeTextures { get; private set; } = null!;
+    public static Texture2D WhitePixel { get; private set; }
+    public static SpriteFont Font { get; private set; }
+    public static Dictionary<CellType, Texture2D> ShapeTextures { get; private set; }
 
     public static void Initialize(GraphicsDevice device, ContentManager content)
     {
@@ -42,14 +42,14 @@ public static class PersistentResources
     public static void Dispose()
     {
         WhitePixel?.Dispose();
-        WhitePixel = null!;
+        WhitePixel = null;
 
         if (ShapeTextures != null)
         {
             foreach (var tex in ShapeTextures.Values)
                 tex.Dispose();
             ShapeTextures.Clear();
-            ShapeTextures = null!;
+            ShapeTextures = null;
         }
 
         _isInitialized = false;
