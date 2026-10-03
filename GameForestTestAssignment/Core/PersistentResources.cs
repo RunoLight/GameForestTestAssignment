@@ -14,12 +14,20 @@ namespace GameForestTestAssignment.Core;
 public static class PersistentResources
 {
     private const int ShapeTextureSize = 64;
+
+    private static bool _isInitialized;
+
     public static Texture2D WhitePixel { get; private set; } = null!;
     public static SpriteFont Font { get; private set; } = null!;
     public static Dictionary<CellType, Texture2D> ShapeTextures { get; private set; } = null!;
 
     public static void Initialize(GraphicsDevice device, ContentManager content)
     {
+        if (_isInitialized)
+            return;
+
+        _isInitialized = true;
+
         WhitePixel = new Texture2D(device, 1, 1);
         WhitePixel.SetData([Color.White]);
 
@@ -33,6 +41,24 @@ public static class PersistentResources
                 continue;
             ShapeTextures[type] = CreateShapeTexture(ShapeTextureSize, type, device);
         }
+    }
+
+    public static void Dispose()
+    {
+        WhitePixel?.Dispose();
+        WhitePixel = null!;
+
+        if (ShapeTextures != null)
+        {
+            foreach (var tex in ShapeTextures.Values)
+                tex.Dispose();
+            ShapeTextures.Clear();
+            ShapeTextures = null!;
+        }
+
+        _isInitialized = false;
+
+        // Font not disposed here - managed by ContentManager
     }
 
     private static Texture2D CreateShapeTexture(int size, CellType cellType, GraphicsDevice device)

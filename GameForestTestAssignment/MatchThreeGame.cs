@@ -1,7 +1,11 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+﻿#region
+
 using GameForestTestAssignment.Core;
 using GameForestTestAssignment.Core.ScreenSystem;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+
+#endregion
 
 namespace GameForestTestAssignment;
 
@@ -32,6 +36,11 @@ public class MatchThreeGame : Microsoft.Xna.Framework.Game
     protected override void LoadContent()
     {
         PersistentResources.Initialize(GraphicsDevice, Content);
+    }
+
+    protected override void UnloadContent()
+    {
+        PersistentResources.Dispose();
     }
 
     protected override void Update(GameTime gameTime)
