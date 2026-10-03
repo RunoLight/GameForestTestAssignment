@@ -15,17 +15,12 @@ public class RemovalService(
 {
     private readonly HashSet<(int X, int Y)> _cellsToRemove = [];
 
-    public void MarkCellForRemoval(int x, int y)
-    {
-        TryMarkForRemoval(x, y, true);
-    }
-
     public void Clear()
     {
         _cellsToRemove.Clear();
     }
 
-    private void TryMarkForRemoval(int x, int y, bool awardScore)
+    public void MarkCellForRemoval(int x, int y)
     {
         if (!board.IsInBounds(x, y))
             return;
@@ -36,8 +31,7 @@ public class RemovalService(
         if (!_cellsToRemove.Add((x, y)))
             return;
 
-        if (awardScore)
-            scoreManager.AddScore(1);
+        scoreManager.AddScore(1);
 
         animationManager.Play(new DisappearAnimation(x, y, 0.28f), () => ClearCell(x, y));
         particlePool.CreateExplosion(layout.GetCellCenter(x, y), board[x, y].CellType.GetColor());

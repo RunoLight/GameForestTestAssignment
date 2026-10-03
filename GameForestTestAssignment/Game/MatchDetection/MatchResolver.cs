@@ -25,40 +25,28 @@ public static class MatchResolver
         var bonusesToSpawn = new Dictionary<(int X, int Y), Bonus>();
         var bonusesToActivate = new List<(int X, int Y)>();
         var plan = new ResolutionPlan(cellsToRemove, bonusesToSpawn, bonusesToActivate);
-        var (intersections, hMatches, vMatches) = detector.FindMatchesWithClassification(board);
-        var allMatches = new List<MatchResult>(hMatches);
-        allMatches.AddRange(vMatches);
+        var (matches, intersections) = detector.FindMatches(board);
 
-        if (allMatches.Count == 0)
+        if (matches.Count == 0)
             return plan;
 
         var matchCells = new HashSet<(int X, int Y)>();
-        foreach (var match in allMatches)
-        foreach (var cell in match.Cells)
-            matchCells.Add(cell);
+        foreach (var match in matches)
+            matchCells.UnionWith(match.Cells);
 
         foreach (var cell in matchCells)
             if (board[cell.X, cell.Y].Bonus != null)
                 plan.BonusesToActivate.Add(cell);
 
-        foreach (var intersection in intersections)
-            TrySpawn(plan, board, intersection,
-                BonusFactory.Create(BonusType.Bomb, board[intersection.Item1, intersection.Item2].CellType));
+        foreach (var cell in intersections)
+            TrySpawn(plan, board, cell, new BombBonus(board[cell.X, cell.Y].CellType));
 
-        foreach (var match in allMatches)
+        foreach (var match in matches)
         {
             var preferred = PreferredCell(match, lastMoved);
             if (match.Length >= 5)
-            {
-                TrySpawn(plan, board, preferred, BonusFactory.Create(BonusType.Bomb, match.Type));
-            }
-            else if (match.Length == 4)
-            {
-                var orientation = match.Direction == MatchDirection.Horizontal
-                    ? BonusOrientation.Horizontal
-                    : BonusOrientation.Vertical;
-                TrySpawn(plan, board, preferred, BonusFactory.Create(BonusType.Line, match.Type, orientation));
-            }
+                TrySpawn(plan, board, preferred, new BombBonus(match.Type));
+            else if (match.Length == 4) TrySpawn(plan, board, preferred, new LineBonus(match.Type, match.Orientation));
         }
 
         foreach (var cell in matchCells)

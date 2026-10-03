@@ -1,19 +1,12 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GameForestTestAssignment.Game.MatchDetection;
 
-public enum MatchDirection
-{
-    Horizontal,
-    Vertical
-}
-
-public class MatchResult(MatchDirection direction, CellType type, int length)
+public class MatchResult(Orientation orientation, CellType type)
 {
     public List<(int X, int Y)> Cells { get; } = [];
-    public MatchDirection Direction { get; } = direction;
-    public int Length { get; } = length;
+    public Orientation Orientation { get; } = orientation;
+    public int Length => Cells.Count;
     public CellType Type { get; } = type;
 
     public void AddCell(int x, int y)
@@ -24,38 +17,7 @@ public class MatchResult(MatchDirection direction, CellType type, int length)
 
 public class MatchDetector
 {
-    public (
-        HashSet<(int, int)> intersectionCells,
-        List<MatchResult> horizontalMatches,
-        List<MatchResult>verticalMatches
-        ) FindMatchesWithClassification(IBoard board)
-    {
-        var allMatches = FindMatches(board);
-        var horizontalMatches = new List<MatchResult>();
-        var verticalMatches = new List<MatchResult>();
-        var horizontalCells = new HashSet<(int, int)>();
-        var verticalCells = new HashSet<(int, int)>();
-
-        foreach (var match in allMatches)
-            if (match.Direction == MatchDirection.Horizontal)
-            {
-                horizontalMatches.Add(match);
-                foreach (var cell in match.Cells)
-                    horizontalCells.Add(cell);
-            }
-            else
-            {
-                verticalMatches.Add(match);
-                foreach (var cell in match.Cells)
-                    verticalCells.Add(cell);
-            }
-
-        var intersectionCells = horizontalCells.Where(verticalCells.Contains).ToHashSet();
-
-        return (intersectionCells, horizontalMatches, verticalMatches);
-    }
-
-    private static List<MatchResult> FindMatches(IBoard board)
+    public (List<MatchResult> Matches, HashSet<(int X, int Y)> Intersections) FindMatches(IBoard board)
     {
         var matches = new List<MatchResult>();
 
@@ -65,7 +27,13 @@ public class MatchDetector
         for (var x = 0; x < Board.Width; x++)
             ScanColumn(board, x, matches);
 
-        return matches;
+        var horizontalCells = new HashSet<(int X, int Y)>();
+        var verticalCells = new HashSet<(int X, int Y)>();
+        foreach (var match in matches)
+            (match.Orientation == Orientation.Horizontal ? horizontalCells : verticalCells).UnionWith(match.Cells);
+
+        horizontalCells.IntersectWith(verticalCells);
+        return (matches, horizontalCells);
     }
 
     private static void ScanRow(IBoard board, int y, List<MatchResult> matches)
@@ -88,7 +56,7 @@ public class MatchDetector
 
             if (runLength >= 3)
             {
-                var match = new MatchResult(MatchDirection.Horizontal, cell.CellType, runLength);
+                var match = new MatchResult(Orientation.Horizontal, cell.CellType);
                 for (var i = 0; i < runLength; i++) match.AddCell(x + i, y);
                 matches.Add(match);
             }
@@ -117,7 +85,7 @@ public class MatchDetector
 
             if (runLength >= 3)
             {
-                var match = new MatchResult(MatchDirection.Vertical, cell.CellType, runLength);
+                var match = new MatchResult(Orientation.Vertical, cell.CellType);
                 for (var i = 0; i < runLength; i++) match.AddCell(x, y + i);
                 matches.Add(match);
             }

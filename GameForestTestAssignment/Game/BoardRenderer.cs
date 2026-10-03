@@ -70,12 +70,12 @@ public class BoardRenderer(SpriteBatch spriteBatch, BoardLayout layout, int text
 
         switch (bonus)
         {
-            case LineBonus { Orientation: BonusOrientation.Horizontal }:
+            case LineBonus { Orientation: Orientation.Horizontal }:
                 spriteBatch.Draw(PersistentResources.WhitePixel,
                     new Rectangle((int)(center.X - size * 0.38f), (int)(center.Y - size * 0.08f),
                         (int)(size * 0.76f), (int)(size * 0.16f)), accent);
                 break;
-            case LineBonus { Orientation: BonusOrientation.Vertical }:
+            case LineBonus { Orientation: Orientation.Vertical }:
                 spriteBatch.Draw(PersistentResources.WhitePixel,
                     new Rectangle((int)(center.X - size * 0.08f), (int)(center.Y - size * 0.38f),
                         (int)(size * 0.16f), (int)(size * 0.76f)), accent);

@@ -32,7 +32,7 @@ public class BonusManager(BoardEffectQueue effects)
     {
         effects.Enqueue(new RemoveCellEffect(x, y));
 
-        if (lineBonus.Orientation == BonusOrientation.Horizontal)
+        if (lineBonus.Orientation == Orientation.Horizontal)
         {
             effects.Enqueue(new SpawnDestroyerEffect(x, y, -1, 0, lineBonus.ColorType));
             effects.Enqueue(new SpawnDestroyerEffect(x, y, 1, 0, lineBonus.ColorType));
