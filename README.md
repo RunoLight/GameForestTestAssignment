@@ -86,3 +86,11 @@ The tests cover the game logic without graphics or input:
 - destroyer, animation manager, timer.
 
 Boards in tests are described with strings (`TestBoard.FromRows("RRGR")`).
+
+## Screenshots
+
+<img width="1273" height="715" alt="image" src="https://github.com/user-attachments/assets/9c9b9a99-41a0-4ce2-b168-b08d18e413cf" />
+<img width="1276" height="714" alt="image" src="https://github.com/user-attachments/assets/cee103fb-241e-4d6f-8310-49a4e82d1edc" />
+<img width="1273" height="714" alt="image" src="https://github.com/user-attachments/assets/079832a9-da9b-4ae1-b1bc-6622ed976508" />
+
+
