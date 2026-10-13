@@ -124,6 +124,10 @@ public class Board : IBoard
             cell.Reset();
     }
 
+    /// <summary>
+    /// Checks only the left and top neighbors, since the board is filled left-to-right, top-to-bottom
+    /// and method is called when no cells are filled yet to the right or below.
+    /// </summary>
     private bool WouldCreateMatch(int x, int y, CellType type)
     {
         // Check horizontal
