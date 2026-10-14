@@ -1,4 +1,4 @@
-# GameForestTestAssignment
+# MatchThree
 
 A match-3 game built with MonoGame 3.8 (.NET 9, DirectX). 8×8 board, five piece types, 60-second rounds.
 
@@ -7,7 +7,7 @@ A match-3 game built with MonoGame 3.8 (.NET 9, DirectX). 8×8 board, five piece
 Requires Windows and the .NET 9 SDK.
 
 ```bash
-cd GameForestTestAssignment
+cd MatchThree
 dotnet tool restore          # MGCB content builder, needed once
 dotnet run
 ```
@@ -49,7 +49,7 @@ The bonus appears in the cell the player moved a piece into; during cascades it 
 ## Architecture
 
 ```
-GameForestTestAssignment/
+MatchThree/
   Core/                 screens (menu, game, Game Over), button, shared resources
   Game/
     Board, Cell, ...    board model
@@ -60,7 +60,7 @@ GameForestTestAssignment/
     Effects/            destroyers, particles, score popups, screen shake
     PlayerInput/        mouse → swap command
     GameSession.cs      composition root of the game screen
-GameForestTestAssignment.Tests/   NUnit tests for the game logic
+MatchThree.Tests/   NUnit tests for the game logic
 ```
 
 Key decisions:

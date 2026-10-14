@@ -1,0 +1,13 @@
+using System;
+using MatchThree.Utils;
+
+namespace MatchThree.Game.Animations;
+
+public class DisappearAnimation(int x, int y, float duration) : AnimationWithDuration(duration)
+{
+    public override void Apply(BoardRenderState renderState)
+    {
+        renderState.SetScale(x, y, Math.Max(0.01f, 1f - Easing.EaseInCubic(Progress)));
+        renderState.SetAlpha(x, y, 1f - Easing.Linear(Progress));
+    }
+}
